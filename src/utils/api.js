@@ -3,9 +3,21 @@ import qs from 'qs'
 
 const api = 'http://localhost:8080'
 
-// get示例
-export const checkToken = params => {
-  return get(api + '/user/verifyToken')
+// 获取所有标签
+export const getTags = () => {
+  return get(api + '/getTags')
+    .then(res => res)
+}
+
+// 获取常用标签
+export const getUsualTags = () => {
+  return get(api + '/getUsualTags')
+    .then(res => res)
+}
+
+// 搜索标签
+export const searchTags = params => {
+  return get(api + '/searchTags?' + qs.stringify(params))
     .then(res => res)
 }
 

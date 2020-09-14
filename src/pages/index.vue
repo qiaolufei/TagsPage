@@ -18,32 +18,41 @@
       </div>
       <!-- 标签展示栏 -->
       <div v-if="eff" class="index__body-effTags">
-        <div v-for="(item, index) of tagsList" :key="item.id" class="index__body-effTags__one">
-          <!-- <el-popover
+        <div v-for="(item, index) of tagsList" :key="item.id" @click="choose(item.address, index)" class="index__body-effTags__one">
+          <el-popover
             popper-class="myPopover"
             placement="bottom-end"
             :offset=-10
             :visible-arrow="false"
             trigger="manual"
-            v-model="visible[i]"
-          >-->
-          <!-- <div>删除</div> -->
-          <img :src="item.url" @contextmenu.prevent="chooseTag(index)" />
-          <div
-            style="display:inline-block"
-            @contextmenu.prevent="chooseTag(index)"
-            class="index__body-effTags__one-info"
+            v-model="visible[index]"
           >
-            <div class="index__body-effTags__one-info__name">{{item.name}}</div>
-            <div class="index__body-effTags__one-info__msg">{{item.info}}</div>
+          <div class="popper">
+            <el-link href="#" :underline="false">前移</el-link>
+            <el-divider></el-divider>
+            <el-link href="#" :underline="false">后移</el-link>
+            <el-divider></el-divider>
+            <el-link href="#" :underline="false" type="primary">编辑</el-link>
+            <el-divider></el-divider>
+            <el-link href="#" :underline="false" type="danger">删除</el-link>
           </div>
-          <!-- </el-popover> -->
+          <div slot="reference" style="display:flex;flex-direction:row">
+            <img :src="item.imgUrl" @contextmenu.prevent="chooseTag(index)" :style="{'background': item.bgColor}" style="display:inline-block" />
+            <div
+              @contextmenu.prevent="chooseTag(index)"
+              class="index__body-effTags__one-info"
+            >
+              <div class="index__body-effTags__one-info__name">{{item.name}}</div>
+              <div class="index__body-effTags__one-info__msg">{{item.info}}</div>
+            </div>
+          </div>
+          </el-popover>
         </div>
         <div v-for="j in (tagsList.length%4)" :key="j" class="index__body-effTags__more"></div>
       </div>
       <div v-else class="index__body-conTags">
         <div v-for="(item, index) of tagsList" :key="item.id" class="index__body-conTags__one">
-          <img @click="choose(index)" slot="reference" :src="item.url" />
+          <img @click="choose(item.address, index)" slot="reference" :style="{'background': item.bgColor}" :src="item.imgUrl" />
           <span>{{item.name}}</span>
         </div>
         <div v-for="y in (tagsList.length%5)" :key="y" class="index__body-conTags__more"></div>
@@ -134,25 +143,76 @@
             type="primary"
             plain
             size="small"
-            @click="dialogVisible = true"
+            @click="addTag"
             icon="el-icon-circle-plus-outline"
           >添加标签</el-button>
         </div>
       </div>
     </el-drawer>
-    <el-dialog title="添加标签" :visible.sync="dialogVisible" width="40%">
-      <div>
-        <el-input size="small" clearable v-model="form.address" placeholder="地址"></el-input>
+    <el-dialog :visible.sync="dialogVisible" width="50%">
+      <div class="index__dialog">
+        <el-tabs size="mini" v-model="activeName" type="card">
+          <el-tab-pane label="手动添加" name="first">
+            <div class="index__dialog-form">
+              <div>
+              <span>地址：</span>
+              <el-input v-model="form.address" style="width:50%" size="small" clearable placeholder="请输入地址(必填)"></el-input>
+              </div>
+              <div style="margin-top:1vw">
+              <span>名称：</span>
+              <el-input v-model="form.name" style="width:50%" size="small" clearable placeholder="请输入名称(必填)"></el-input>
+              </div>
+              <div style="margin-top:1vw">
+              <span>描述：</span>
+              <el-input v-model="form.info" style="width:50%" size="small" clearable placeholder="相关描述(选填)"></el-input>
+              </div>
+              <div  style="margin-top:1vw">
+                <span style="vertical-align:top">logo：</span>
+                <input
+                  id="getLogo"
+                  type="file"
+                  accept=".jpg, .png, .gif, .bmp, .jpeg"
+                  style="display:none"
+                  @change="clickF1"
+                />
+                <div class="avatar-uploader1">
+                  <img v-if="form.logoUrl" @click="toclickF1" :src="form.logoUrl" class="avatar1" />
+                  <i v-else @click="toclickF1" class="el-icon-plus avatar-uploader-icon1"></i>
+                </div>
+              </div>
+              <span slot="foot">
+              <div style="margin-top:1vw;text-align:right">
+                <el-button size="small" type="primary">确定</el-button>
+              </div>
+              </span>
+            </div>
+          </el-tab-pane>
+          <el-tab-pane label="搜索添加" name="second">
+        <div>
+            <el-input size="small" style="width:50%" v-model="searchTag" placeholder="搜索" @keyup.enter.native="searchTagsByName"></el-input>
+        </div>
+        <div class="index__dialog-list"
+         v-loading="loading"
+         element-loading-text="拼命加载中"
+         element-loading-spinner="el-icon-loading"
+         element-loading-background="rgba(0, 0, 0, 0.8)">
+          <div class="index__dialog-list__one" v-for="(item, index) in allTags" :key="item.id" @click="choose(index)">
+            <img :src=item.imgUrl :style="{'background': item.bgColor}">
+            <div class="index__dialog-list__one-info">
+              <div class="index__dialog-list__one-info__name">{{item.name}}</div>
+              <div class="index__dialog-list__one-info__msg">{{item.info}}</div>
+            </div>
+          </div>
+        </div>
+        </el-tab-pane>
+        </el-tabs>
       </div>
-      <span slot="footer" class="dialog-footer">
-        <el-button size="small" @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" size="small" @click="dialogVisible = false">确 定</el-button>
-      </span>
     </el-dialog>
   </div>
 </template>
 <script>
 import {sortLikeWin} from '../utils/commen'
+import {getTags, getUsualTags, searchTags} from '../utils/api'
 export default {
   data () {
     return {
@@ -163,8 +223,16 @@ export default {
       orderType: 0, // 排序类型
       order: 0, // 排序顺序
       dialogVisible: false, // 添加标签弹窗
+      allTags: [],
+      activeName: 'first',
+      loading: true,
+      searchTag: '', // 搜索标签
+      logoUrl: '',
       form: {
-        address: ''
+        address: '',
+        name: '',
+        info: '',
+        logoUrl: ''
       },
       visible: [],
       bg: localStorage.getItem('bg') == null ? 1 : localStorage.getItem('bg'),
@@ -176,78 +244,10 @@ export default {
         localStorage.getItem('bgcolor') == null
           ? 'rgba(64,158,255,0.6)'
           : localStorage.getItem('bgcolor'),
-      tagsList: [
-        {
-          id: 1,
-          url: require('../img/github.png'),
-          name: 'GitHub1',
-          info: 'GitHub是一个面向开源及私有软件项目的托管平台',
-          time: '1599546109000'
-        },
-        {
-          id: 2,
-          url: require('../img/github.png'),
-          name: 'GitHub2',
-          info: 'GitHub是一个面向开源及私有软件项目的托管平台',
-          time: '1599546109001'
-        },
-        {
-          id: 3,
-          url: require('../img/github.png'),
-          name: 'GitHub3',
-          info: 'GitHub是一个面向开源及私有软件项目的托管平台',
-          time: '1599546109003'
-        },
-        {
-          id: 4,
-          url: require('../img/github.png'),
-          name: 'GitHub4',
-          info: 'GitHub是一个面向开源及私有软件项目的托管平台',
-          time: '1599546109002'
-        },
-        {
-          id: 5,
-          url: require('../img/github.png'),
-          name: 'GitHub5',
-          info: 'GitHub是一个面向开源及私有软件项目的托管平台',
-          time: '1599546109005'
-        },
-        {
-          id: 6,
-          url: require('../img/github.png'),
-          name: 'GitHub6',
-          info: 'GitHub是一个面向开源及私有软件项目的托管平台',
-          time: '1599546109006'
-        },
-        {
-          id: 7,
-          url: require('../img/github.png'),
-          name: 'GitHub7',
-          info: 'GitHub是一个面向开源及私有软件项目的托管平台',
-          time: '1599546109005'
-        },
-        {
-          id: 8,
-          url: require('../img/github.png'),
-          name: 'GitHub8',
-          info: 'GitHub是一个面向开源及私有软件项目的托管平台',
-          time: '1599546109007'
-        },
-        {
-          id: 9,
-          url: require('../img/github.png'),
-          name: 'GitHub10',
-          info: 'GitHub是一个面向开源及私有软件项目的托管平台',
-          time: '1599546109008'
-        },
-        {
-          id: 10,
-          url: require('../img/github.png'),
-          name: 'GitHub9',
-          info: 'GitHub是一个面向开源及私有软件项目的托管平台',
-          time: '1599546109009'
-        }
-      ]
+      tagsList:
+        localStorage.getItem('tags') == null
+          ? []
+          : JSON.parse(localStorage.getItem('tags'))
     }
   },
   methods: {
@@ -262,7 +262,7 @@ export default {
       this.bgcolor = e
       localStorage.setItem('bgcolor', e)
     },
-    toclickF () {
+    toclickF () { // 背景图片
       document.getElementById('getImg').click()
     },
     clickF (event) {
@@ -272,6 +272,18 @@ export default {
         // 将图片转码为base64存储localStorage
         this.imageUrl = fReader.result
         localStorage.setItem('imgData', fReader.result)
+      }
+      fReader.readAsDataURL(file)
+    },
+    toclickF1 () {
+      document.getElementById('getLogo').click()
+    },
+    clickF1 (event) {
+      let file = event.target.files[0]
+      var fReader = new FileReader()
+      fReader.onload = () => {
+        // 将图片转码为base64存储localStorage
+        this.form.logoUrl = fReader.result
       }
       fReader.readAsDataURL(file)
     },
@@ -285,24 +297,55 @@ export default {
         }
       }
     },
+    choose (url, index) {
+      window.location.href = url
+    },
     sortByTime (a, b) {
       return a - b
     },
     changeOrder () {
-      if (this.orderType === '1') {
+      if (this.orderType === '1') { // 根据名称排序
         this.tagsList.sort((a, b) => sortLikeWin(a.name, b.name))
         if (this.order === 1) {
           this.tagsList.reverse()
         }
-      } else {
-        this.tagsList.sort((a, b) => this.sortByTime(a.time, b.time))
+      } else { // 根据时间排序
+        this.tagsList.sort((a, b) => this.sortByTime(a.updateTime, b.updateTime))
         if (this.order === 1) {
           this.tagsList.reverse()
         }
       }
+    },
+    addTag () {
+      getTags().then(res => {
+        if (res.code === 200) {
+          this.allTags = res.data
+          this.loading = false
+        }
+      })
+      this.dialogVisible = true
+      this.drawer = false
+    },
+    searchTagsByName () {
+      let params = {
+        name: this.searchTag
+      }
+      searchTags(params).then(res => {
+        if (res.code === 200) {
+          this.allTags = res.data
+        }
+      })
     }
   },
   mounted () {
+    if (this.tagsList.length === 0) {
+      getUsualTags().then(res => {
+        if (res.code === 200) {
+          this.tagsList = res.data
+          localStorage.setItem('tags', JSON.stringify(this.tagsList))
+        }
+      })
+    }
     for (let i in 15) {
       this.visible[i] = false
     }
@@ -335,33 +378,37 @@ body .index {
       display: flex;
       flex-wrap: wrap;
       justify-content: space-between;
-      overflow-y: scroll;
-      overflow: hidden;
       &__one {
         width: 23%;
         height: 14vh;
         margin-top: 1.5vw;
+        box-sizing: border-box;
         display: flex;
         flex-direction: row;
         img {
           cursor: pointer;
           width: 14vh;
           height: 14vh;
-          background: #409eff;
           border-radius: 5px 0 0 5px;
         }
         &-info {
+          width: 11.6vw;
           cursor: pointer;
           background: #fff;
           opacity: 0.85;
           border-radius: 0 5px 5px 0;
           box-sizing: border-box;
           padding: 3% 3% 3% 3%;
+          height: 14vh;
+          overflow: hidden;
+          text-overflow:ellipsis;
           &__name {
+            width: 100%;
             font-size: 1.2vw;
             color: #303133;
           }
           &__msg {
+            width: 100%;
             margin-top: 0.5vw;
             font-size: 1vw;
             color: #606266;
@@ -369,12 +416,14 @@ body .index {
         }
       }
       &__one:hover {
+        border-radius: 5px;
         box-shadow: 0 0 15px 0 #409eff;
       }
       &__more {
         width: 23%;
         height: 14vh;
       }
+
     }
     &-conTags::-webkit-scrollbar {
       display: none;
@@ -397,7 +446,6 @@ body .index {
         img {
           width: 9vw;
           height: 9vw;
-          background: #409eff;
           border-radius: 10px;
           -webkit-transition: -webkit-transform 1s ease-out;
           -moz-transition: -moz-transform 1s ease-out;
@@ -530,6 +578,51 @@ body .index {
       margin: 2% 0 0 5%;
     }
   }
+  &__dialog{
+    height: 65vh;
+    &-list::-webkit-scrollbar {
+      display: none;
+    }
+    &-list{
+      height: 50vh;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      overflow-y: scroll;
+      &__one {
+        width: 40%;
+        height: 10vh;
+        margin-top: 1vw;
+        display: flex;
+        flex-direction: row;
+        img {
+          cursor: pointer;
+          width: 10vh;
+          height: 10vh;
+          border-radius: 5px 0 0 5px;
+        }
+        &-info{
+          cursor: pointer;
+          background: #E4E7ED;
+          width: 100%;
+          opacity: 0.85;
+          border-radius: 0 5px 5px 0;
+          box-sizing: border-box;
+          padding: 3% 3% 3% 3%;
+          overflow: hidden;
+          &__name {
+            font-size: 1vw;
+            color: #303133;
+          }
+          &__msg {
+            margin-top: 0.1vw;
+            font-size: 0.6vw;
+            color: #606266;
+          }
+        }
+      }
+    }
+  }
 }
 .myPopover {
   min-width: 65px;
@@ -557,6 +650,31 @@ body .index {
 .avatar {
   width: 100%;
   height: 178px;
+  display: inline-block;
+}
+.avatar-uploader1 {
+  display: inline-block;
+  width: 10vw;
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.avatar-uploader1:hover {
+  border-color: #409eff;
+}
+.avatar-uploader-icon1 {
+  font-size: 28px;
+  color: #8c939d;
+  width: 100%;
+  height: 10vw;
+  line-height: 10vw;
+  text-align: center;
+}
+.avatar1 {
+  width: 10vw;
+  height: 10vw;
   display: inline-block;
 }
 .el-color-picker__trigger {
@@ -590,7 +708,23 @@ body .index {
   // 去掉弹出层点击时产生的黑色border
   outline: none;
 }
+.el-popover{
+  padding: 0;
+}
 .el-popper[x-placement^="bottom"] {
-  margin-top: 0;
+  margin-top: -10px;
+}
+.el-popper[x-placement^="top"] {
+  margin-bottom: -10px;
+}
+.popper{
+  text-align: center;
+  /deep/ .el-divider--horizontal{
+    margin: 0;
+  }
+}
+.el-tabs__item {
+  height: 2vw;
+  line-height: 2vw;
 }
 </style>
