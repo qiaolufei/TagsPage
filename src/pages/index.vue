@@ -8,11 +8,14 @@
       <div style="position:fixed;width:10px;height:100vh;right:0" @mouseenter="drawer = true"></div>
       <!-- 搜索栏 -->
       <div class="index__body-search">
-        <el-input v-model="searchInfo" placeholder="搜索" style="width:60%">
+        <el-input v-model="searchInfo" clearable @keyup.enter.native="toSearch" placeholder="搜索" style="width:60%">
           <el-select v-model="select" slot="prepend">
             <el-option label="百度" value="1"></el-option>
             <el-option label="Google" value="2"></el-option>
-            <el-option label="搜狐" value="3"></el-option>
+            <el-option label="搜狗" value="3"></el-option>
+            <el-option label="Yahoo!" value="4"></el-option>
+            <el-option label="新浪" value="5"></el-option>
+            <el-option label="网易" value="6"></el-option>
           </el-select>
         </el-input>
       </div>
@@ -20,6 +23,7 @@
       <div v-if="eff" class="index__body-effTags">
         <div v-for="(item, index) of tagsList" :key="item.id" @click="choose(item.address, index)" class="index__body-effTags__one">
           <el-popover
+            transition="el-zoom-in-top"
             popper-class="myPopover"
             placement="bottom-end"
             :offset=-10
@@ -28,13 +32,13 @@
             v-model="visible[index]"
           >
           <div class="popper">
-            <el-link href="#" :underline="false">前移</el-link>
+            <el-link @click.native="choose(item.address, index)" :underline="false">当前页打开</el-link>
             <el-divider></el-divider>
-            <el-link href="#" :underline="false">后移</el-link>
+            <el-link @click.native="chooseNew(item.address, index)" :underline="false">新窗口打开</el-link>
             <el-divider></el-divider>
-            <el-link href="#" :underline="false" type="primary">编辑</el-link>
+            <el-link :underline="false" type="primary">编辑</el-link>
             <el-divider></el-divider>
-            <el-link href="#" :underline="false" type="danger">删除</el-link>
+            <el-link @click.native="deleteTag(item, index)" :underline="false" type="danger">删除</el-link>
           </div>
           <div slot="reference" style="display:flex;flex-direction:row">
             <img :src="item.imgUrl" @contextmenu.prevent="chooseTag(index)" :style="{'background': item.bgColor}" style="display:inline-block" />
@@ -48,14 +52,39 @@
           </div>
           </el-popover>
         </div>
-        <div v-for="j in (tagsList.length%4)" :key="j" class="index__body-effTags__more"></div>
+        <div @click="addTag" class="index__body-effTags__add"><i class="el-icon-plus"></i></div>
+        <div v-for="j in (4-(tagsList.length+1)%4)" :key="j" class="index__body-effTags__more"></div>
       </div>
       <div v-else class="index__body-conTags">
         <div v-for="(item, index) of tagsList" :key="item.id" class="index__body-conTags__one">
-          <img @click="choose(item.address, index)" slot="reference" :style="{'background': item.bgColor}" :src="item.imgUrl" />
+          <el-popover
+            transition="el-zoom-in-top"
+            popper-class="myPopover"
+            placement="bottom-end"
+            :offset=-10
+            :visible-arrow="false"
+            trigger="manual"
+            v-model="visible[index]"
+          >
+          <div class="popper">
+            <el-link @click.native="choose(item.address, index)" :underline="false">当前页打开</el-link>
+            <el-divider></el-divider>
+            <el-link @click.native="chooseNew(item.address, index)" :underline="false">新窗口打开</el-link>
+            <el-divider></el-divider>
+            <el-link :underline="false" type="primary">编辑</el-link>
+            <el-divider></el-divider>
+            <el-link @click.native="deleteTag(item, index)" :underline="false" type="danger">删除</el-link>
+          </div>
+          <div  @contextmenu.prevent="chooseTag(index)" slot="reference">
+          <img @click="choose(item.address, index)" :style="{'background': item.bgColor}" :src="item.imgUrl" />
           <span>{{item.name}}</span>
+          </div>
+          </el-popover>
         </div>
-        <div v-for="y in (tagsList.length%5)" :key="y" class="index__body-conTags__more"></div>
+        <div class="addDiv">
+        <div @click="addTag" class="index__body-conTags__add"><i class="el-icon-plus"></i></div>
+        </div>
+        <div v-for="y in (5-(tagsList.length+1)%5)" :key="y" class="index__body-conTags__more"></div>
       </div>
     </div>
     <!-- 设置项 -->
@@ -122,7 +151,7 @@
         </div>
       </div>
       <div class="index__tags">
-        <el-divider>标签管理</el-divider>
+        <el-divider>标签排序</el-divider>
         <div class="index__tags-choose">
           <el-radio-group size="mini" v-model="orderType" @change="changeOrder">
             <el-radio-button label="0">时间</el-radio-button>
@@ -138,18 +167,9 @@
             </el-radio>
           </el-radio-group>
         </div>
-        <div class="index__tags-add">
-          <el-button
-            type="primary"
-            plain
-            size="small"
-            @click="addTag"
-            icon="el-icon-circle-plus-outline"
-          >添加标签</el-button>
-        </div>
       </div>
     </el-drawer>
-    <el-dialog :visible.sync="dialogVisible" width="50%">
+    <el-dialog :visible.sync="dialogVisible" width="50%" title="添加标签">
       <div class="index__dialog">
         <el-tabs size="mini" v-model="activeName" type="card">
           <el-tab-pane label="手动添加" name="first">
@@ -163,8 +183,8 @@
               <el-input v-model="form.name" style="width:50%" size="small" clearable placeholder="请输入名称(必填)"></el-input>
               </div>
               <div style="margin-top:1vw">
-              <span>描述：</span>
-              <el-input v-model="form.info" style="width:50%" size="small" clearable placeholder="相关描述(选填)"></el-input>
+              <span style="vertical-align:top">描述：</span>
+              <el-input v-model="form.info" type="textarea" resize="none" style="width:50%" size="small" clearable placeholder="相关描述(选填)"></el-input>
               </div>
               <div  style="margin-top:1vw">
                 <span style="vertical-align:top">logo：</span>
@@ -181,22 +201,21 @@
                 </div>
               </div>
               <span slot="foot">
-              <div style="margin-top:1vw;text-align:right">
-                <el-button size="small" type="primary">确定</el-button>
+              <div style="margin-top:4vh;text-align:right">
+                <el-button size="small" @click="addMyTag" type="primary">确定</el-button>
               </div>
               </span>
             </div>
           </el-tab-pane>
           <el-tab-pane label="搜索添加" name="second">
         <div>
-            <el-input size="small" style="width:50%" v-model="searchTag" placeholder="搜索" @keyup.enter.native="searchTagsByName"></el-input>
+            <el-input size="small" clearable style="width:50%" v-model="searchTag" placeholder="搜索" @keyup.enter.native="searchTagsByName"></el-input>
         </div>
         <div class="index__dialog-list"
          v-loading="loading"
          element-loading-text="拼命加载中"
-         element-loading-spinner="el-icon-loading"
-         element-loading-background="rgba(0, 0, 0, 0.8)">
-          <div class="index__dialog-list__one" v-for="(item, index) in allTags" :key="item.id" @click="choose(index)">
+         element-loading-spinner="el-icon-loading">
+          <div class="index__dialog-list__one" v-for="(item, index) in allTags" :key="item.id" @click="addOneTag(item, index)">
             <img :src=item.imgUrl :style="{'background': item.bgColor}">
             <div class="index__dialog-list__one-info">
               <div class="index__dialog-list__one-info__name">{{item.name}}</div>
@@ -211,7 +230,7 @@
   </div>
 </template>
 <script>
-import {sortLikeWin} from '../utils/commen'
+import {sortLikeWin, timeJS} from '../utils/commen'
 import {getTags, getUsualTags, searchTags} from '../utils/api'
 export default {
   data () {
@@ -232,7 +251,8 @@ export default {
         address: '',
         name: '',
         info: '',
-        logoUrl: ''
+        logoUrl: '',
+        updateTime: ''
       },
       visible: [],
       bg: localStorage.getItem('bg') == null ? 1 : localStorage.getItem('bg'),
@@ -251,17 +271,40 @@ export default {
     }
   },
   methods: {
-    toChangeColor () {
-      document.getElementById('color').click()
+    toSearch () {
+      let url = ''
+      switch (this.select) {
+        case '1':
+          url = 'https://www.baidu.com/s?wd=' + this.searchInfo
+          break
+        case '2':
+          url = 'https://www.google.com/search?ie=utf-8&q=' + this.searchInfo
+          break
+        case '3':
+          url = 'https://www.sogou.com/sogou?ie=utf8&query=' + this.searchInfo
+          break
+        case '4':
+          url = 'https://search.yahoo.com/search?ei=UTF-8&p=' + this.searchInfo
+          break
+        case '5':
+          url = 'https://www.sina.com.cn/mid/search.shtml?q=' + this.searchInfo
+          break
+        case '6':
+          url = 'http://www.yodao.com/search?ue=utf8&keyfrom=web.index&q=' + this.searchInfo
+          break
+      }
+      window.location.href = url
     },
+    // 存储背景选择
     changeBG (e) {
       localStorage.setItem('bg', e)
     },
+    // 动态改变背景颜色
     colorChange (e) {
-      // 动态改变背景颜色
       this.bgcolor = e
       localStorage.setItem('bgcolor', e)
     },
+    // 改变背景图片
     toclickF () { // 背景图片
       document.getElementById('getImg').click()
     },
@@ -275,6 +318,7 @@ export default {
       }
       fReader.readAsDataURL(file)
     },
+    // 手动添加标签时选择logo
     toclickF1 () {
       document.getElementById('getLogo').click()
     },
@@ -287,6 +331,7 @@ export default {
       }
       fReader.readAsDataURL(file)
     },
+    // 点击右键显示popover选项
     chooseTag (index) {
       this.$forceUpdate()
       for (let i = 0; i < this.visible.length; i++) {
@@ -297,9 +342,14 @@ export default {
         }
       }
     },
+    // 选择标签页跳转
     choose (url, index) {
       window.location.href = url
     },
+    chooseNew (url, index) {
+      window.open(url)
+    },
+    // 标签排序
     sortByTime (a, b) {
       return a - b
     },
@@ -316,16 +366,12 @@ export default {
         }
       }
     },
+    // 打开添加标签弹窗
     addTag () {
-      getTags().then(res => {
-        if (res.code === 200) {
-          this.allTags = res.data
-          this.loading = false
-        }
-      })
       this.dialogVisible = true
       this.drawer = false
     },
+    // 搜索标签
     searchTagsByName () {
       let params = {
         name: this.searchTag
@@ -335,9 +381,58 @@ export default {
           this.allTags = res.data
         }
       })
+    },
+    // 手动添加
+    addMyTag () {
+      let b = this.tagsList.some((item1, index) => {
+        return this.form.name === item1.name
+      })
+      if (!b) {
+        this.form.updateTime = timeJS.getNowTime('timestamp')
+        this.tagsList.push(this.form)
+        this.setVisible()
+        localStorage.setItem('tags', JSON.stringify(this.tagsList))
+        this.dialogVisible = false
+        this.$message.success('添加成功！')
+      } else {
+        this.$message.warning(this.form.name + '标签已存在！')
+      }
+    },
+    // 在“搜索添加”中添加
+    addOneTag (item, index) {
+      let b = this.tagsList.some((item1, index) => {
+        return item.name === item1.name
+      })
+      if (!b) {
+        item.updateTime = timeJS.getNowTime('timestamp')
+        this.tagsList.push(item)
+        this.setVisible()
+        localStorage.setItem('tags', JSON.stringify(this.tagsList))
+        this.dialogVisible = false
+        this.$message.success('添加成功！')
+      } else {
+        this.$message.warning(item.name + '标签已存在！')
+      }
+    },
+    // 删除标签页
+    deleteTag (item, index) {
+      this.$forceUpdate()
+      this.tagsList.splice(index, 1)
+      localStorage.setItem('tags', JSON.stringify(this.tagsList))
+      this.$message.success('删除成功！')
+      this.visible[index] = false
+      this.setVisible()
+    },
+    setVisible () { // 设置popover
+      let l = this.tagsList
+      for (let i = 0; i < l; i++) {
+        this.visible[i] = false
+      }
     }
   },
   mounted () {
+    this.setVisible()
+    // 获取默认的标签页
     if (this.tagsList.length === 0) {
       getUsualTags().then(res => {
         if (res.code === 200) {
@@ -346,13 +441,19 @@ export default {
         }
       })
     }
-    for (let i in 15) {
-      this.visible[i] = false
-    }
+    getTags().then(res => {
+      if (res.code === 200) {
+        this.allTags = res.data
+        this.loading = false
+      }
+    })
   }
 }
 </script>
 <style lang="less">
+div{
+  outline:none;
+}
 html,
 body .index {
   font-family: "微软雅黑";
@@ -419,11 +520,28 @@ body .index {
         border-radius: 5px;
         box-shadow: 0 0 15px 0 #409eff;
       }
+      &__add{
+        width: 23%;
+        height: 14vh;
+        color: #C0C4CC;
+        font-size: 5vw;
+        line-height: 14vh;
+        border: 1px dashed #409eff;
+        box-sizing: border-box;
+        border-radius: 5px;
+        text-align: center;
+        background: #fff;
+        opacity: 0.25;
+        cursor: pointer;
+        margin-top: 1.5vw;
+      }
+      &__add:hover{
+        opacity: 0.85;
+      }
       &__more {
         width: 23%;
         height: 14vh;
       }
-
     }
     &-conTags::-webkit-scrollbar {
       display: none;
@@ -466,6 +584,31 @@ body .index {
           margin-top: 1vw;
           font-weight: bold;
         }
+      }
+      .addDiv{
+        cursor: pointer;
+        width: 14vw;
+        height: 14vw;
+        margin-top: 2vw;
+        text-align: center;
+      }
+      &__add{
+        width: 9vw;
+        height: 9vw;
+        color: #C0C4CC;
+        font-size: 3vw;
+        line-height: 9vw;
+        border: 1px dashed #409eff;
+        box-sizing: border-box;
+        border-radius: 10px;
+        text-align: center;
+        background: #fff;
+        opacity: 0.25;
+        cursor: pointer;
+        margin-left: 2.5vw;
+      }
+      &__add:hover{
+        opacity: 0.85;
       }
       &__more {
         width: 14vw;
@@ -573,9 +716,6 @@ body .index {
     font-size: 1vw;
     &-choose {
       margin-left: 5%;
-    }
-    &-add {
-      margin: 2% 0 0 5%;
     }
   }
   &__dialog{
