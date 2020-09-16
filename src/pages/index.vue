@@ -8,8 +8,14 @@
       <div style="position:fixed;width:10px;height:100vh;right:0" @mouseenter="drawer = true"></div>
       <!-- 搜索栏 -->
       <div class="index__body-search">
-        <el-input v-model="searchInfo" clearable @keyup.enter.native="toSearch" placeholder="搜索" style="width:60%">
-          <el-select v-model="select" slot="prepend">
+        <el-input
+          v-model="searchInfo"
+          clearable
+          @keyup.enter.native="toSearch"
+          placeholder="搜索"
+          style="width:60%"
+        >
+          <el-select v-model="select" @change="changeSelect" slot="prepend">
             <el-option label="百度" value="1"></el-option>
             <el-option label="Google" value="2"></el-option>
             <el-option label="搜狗" value="3"></el-option>
@@ -20,39 +26,52 @@
         </el-input>
       </div>
       <!-- 标签展示栏 -->
-      <div v-if="eff" class="index__body-effTags">
-        <div v-for="(item, index) of tagsList" :key="item.id" @click="choose(item.address, index)" class="index__body-effTags__one">
+      <div v-if="eff == '0'" class="index__body-effTags">
+        <div
+          v-for="(item, index) of tagsList"
+          :key="item.id"
+          @click="choose(item.address, index)"
+          class="index__body-effTags__one"
+        >
           <el-popover
             transition="el-zoom-in-top"
             popper-class="myPopover"
             placement="bottom-end"
-            :offset=-10
+            :offset="-10"
             :visible-arrow="false"
             trigger="manual"
             v-model="visible[index]"
           >
-          <div class="popper">
-            <el-link @click.native="choose(item.address, index)" :underline="false">当前页打开</el-link>
-            <el-divider></el-divider>
-            <el-link @click.native="chooseNew(item.address, index)" :underline="false">新窗口打开</el-link>
-            <el-divider></el-divider>
-            <el-link :underline="false" type="primary">编辑</el-link>
-            <el-divider></el-divider>
-            <el-link @click.native="deleteTag(item, index)" :underline="false" type="danger">删除</el-link>
-          </div>
-          <div slot="reference" style="display:flex;flex-direction:row">
-            <img :src="item.imgUrl" @contextmenu.prevent="chooseTag(index)" :style="{'background': item.bgColor}" style="display:inline-block" />
-            <div
-              @contextmenu.prevent="chooseTag(index)"
-              class="index__body-effTags__one-info"
-            >
-              <div class="index__body-effTags__one-info__name">{{item.name}}</div>
-              <div class="index__body-effTags__one-info__msg">{{item.info}}</div>
+            <div class="popper">
+              <el-link @click.native="choose(item.address, index)" :underline="false">当前页打开</el-link>
+              <el-divider></el-divider>
+              <el-link @click.native="chooseNew(item.address, index)" :underline="false">新窗口打开</el-link>
+              <el-divider></el-divider>
+              <el-link :underline="false" type="primary">编辑</el-link>
+              <el-divider></el-divider>
+              <el-link @click.native="deleteTag(item, index)" :underline="false" type="danger">删除</el-link>
             </div>
-          </div>
+            <div
+              @mouseleave="clearPopover(index)"
+              slot="reference"
+              style="display:flex;flex-direction:row"
+            >
+              <img
+                :src="item.imgUrl"
+                @contextmenu.prevent="chooseTag(index)"
+                :style="{'background': item.bgColor}"
+                style="display:inline-block"
+              />
+              <div @contextmenu.prevent="chooseTag(index)" class="index__body-effTags__one-info">
+                <div class="index__body-effTags__one-info__name">{{item.name}}</div>
+                <div class="index__body-effTags__one-info__msg">{{item.info}}</div>
+              </div>
+            </div>
           </el-popover>
         </div>
-        <div @click="addTag" class="index__body-effTags__add"><i class="el-icon-plus"></i></div>
+        <div @click="addTag" class="index__body-effTags__add">
+          <i class="el-icon-plus"></i>
+        </div>
         <div v-for="j in (4-(tagsList.length+1)%4)" :key="j" class="index__body-effTags__more"></div>
       </div>
       <div v-else class="index__body-conTags">
@@ -61,28 +80,38 @@
             transition="el-zoom-in-top"
             popper-class="myPopover"
             placement="bottom-end"
-            :offset=-10
+            :offset="-10"
             :visible-arrow="false"
             trigger="manual"
             v-model="visible[index]"
           >
-          <div class="popper">
-            <el-link @click.native="choose(item.address, index)" :underline="false">当前页打开</el-link>
-            <el-divider></el-divider>
-            <el-link @click.native="chooseNew(item.address, index)" :underline="false">新窗口打开</el-link>
-            <el-divider></el-divider>
-            <el-link :underline="false" type="primary">编辑</el-link>
-            <el-divider></el-divider>
-            <el-link @click.native="deleteTag(item, index)" :underline="false" type="danger">删除</el-link>
-          </div>
-          <div  @contextmenu.prevent="chooseTag(index)" slot="reference">
-          <img @click="choose(item.address, index)" :style="{'background': item.bgColor}" :src="item.imgUrl" />
-          <span>{{item.name}}</span>
-          </div>
+            <div class="popper">
+              <el-link @click.native="choose(item.address, index)" :underline="false">当前页打开</el-link>
+              <el-divider></el-divider>
+              <el-link @click.native="chooseNew(item.address, index)" :underline="false">新窗口打开</el-link>
+              <el-divider></el-divider>
+              <el-link :underline="false" type="primary">编辑</el-link>
+              <el-divider></el-divider>
+              <el-link @click.native="deleteTag(item, index)" :underline="false" type="danger">删除</el-link>
+            </div>
+            <div
+              @mouseleave="clearPopover(index)"
+              @contextmenu.prevent="chooseTag(index)"
+              slot="reference"
+            >
+              <img
+                @click="choose(item.address, index)"
+                :style="{'background': item.bgColor}"
+                :src="item.imgUrl"
+              />
+              <span>{{item.name}}</span>
+            </div>
           </el-popover>
         </div>
         <div class="addDiv">
-        <div @click="addTag" class="index__body-conTags__add"><i class="el-icon-plus"></i></div>
+          <div @click="addTag" class="index__body-conTags__add">
+            <i class="el-icon-plus"></i>
+          </div>
         </div>
         <div v-for="y in (5-(tagsList.length+1)%5)" :key="y" class="index__body-conTags__more"></div>
       </div>
@@ -126,8 +155,8 @@
         <el-divider>主题选择</el-divider>
         <div class="index__theme-list">
           <div
-            @click="eff = !eff"
-            :style="eff? {'background':'#409eff'} : {'background':'#606266'}"
+            @click="chooseEff('0')"
+            :style="eff == '0'? {'background':'#409eff'} : {'background':'#606266'}"
             class="index__theme-list__eff"
           >
             <div class="index__theme-list__eff-search"></div>
@@ -139,8 +168,8 @@
             </div>
           </div>
           <div
-            @click="eff = !eff"
-            :style="!eff? {'background':'#409eff'} : {'background':'#606266'}"
+            @click="chooseEff('1')"
+            :style="eff == '1'? {'background':'#409eff'} : {'background':'#606266'}"
             class="index__theme-list__con"
           >
             <div class="index__theme-list__con-search"></div>
@@ -172,21 +201,72 @@
     <el-dialog :visible.sync="dialogVisible" width="50%" title="添加标签">
       <div class="index__dialog">
         <el-tabs size="mini" v-model="activeName" type="card">
-          <el-tab-pane label="手动添加" name="first">
+          <el-tab-pane label="搜索添加" name="first">
+            <div>
+              <el-input
+                size="small"
+                clearable
+                style="width:50%"
+                v-model="searchTag"
+                placeholder="搜索"
+                @keyup.enter.native="searchTagsByName"
+              ></el-input>
+            </div>
+            <div
+              class="index__dialog-list"
+              v-loading="loading"
+              element-loading-text="拼命加载中"
+              element-loading-spinner="el-icon-loading"
+            >
+              <div
+                class="index__dialog-list__one"
+                v-for="(item, index) in allTags"
+                :key="item.id"
+                @click="addOneTag(item, index)"
+              >
+                <img :src="item.imgUrl" :style="{'background': item.bgColor}" />
+                <div class="index__dialog-list__one-info">
+                  <div class="index__dialog-list__one-info__name">{{item.name}}</div>
+                  <div class="index__dialog-list__one-info__msg">{{item.info}}</div>
+                </div>
+              </div>
+            </div>
+          </el-tab-pane>
+          <el-tab-pane label="手动添加" name="second">
             <div class="index__dialog-form">
               <div>
-              <span>地址：</span>
-              <el-input v-model="form.address" style="width:50%" size="small" clearable placeholder="请输入地址(必填)"></el-input>
+                <span>地址：</span>
+                <el-input
+                  v-model="form.address"
+                  style="width:50%"
+                  size="small"
+                  clearable
+                  placeholder="请输入地址(必填)"
+                ></el-input>
               </div>
               <div style="margin-top:1vw">
-              <span>名称：</span>
-              <el-input v-model="form.name" style="width:50%" size="small" clearable placeholder="请输入名称(必填)"></el-input>
+                <span>名称：</span>
+                <el-input
+                  v-model="form.name"
+                  style="width:50%"
+                  size="small"
+                  clearable
+                  placeholder="请输入名称(必填)"
+                ></el-input>
               </div>
               <div style="margin-top:1vw">
-              <span style="vertical-align:top">描述：</span>
-              <el-input v-model="form.info" type="textarea" resize="none" style="width:50%" size="small" clearable placeholder="相关描述(选填)"></el-input>
+                <span style="vertical-align:top">描述：</span>
+                <el-input
+                  v-model="form.info"
+                  type="textarea"
+                  resize="none"
+                  style="width:50%"
+                  size="small"
+                  clearable
+                  placeholder="相关描述(选填)"
+                ></el-input>
               </div>
-              <div  style="margin-top:1vw">
+              <div style="margin-top:1vw">
                 <span style="vertical-align:top">logo：</span>
                 <input
                   id="getLogo"
@@ -196,74 +276,70 @@
                   @change="clickF1"
                 />
                 <div class="avatar-uploader1">
-                  <img v-if="form.logoUrl" @click="toclickF1" :src="form.logoUrl" class="avatar1" />
+                  <img v-if="form.imgUrl" @click="toclickF1" :src="form.imgUrl" class="avatar1" />
                   <i v-else @click="toclickF1" class="el-icon-plus avatar-uploader-icon1"></i>
                 </div>
               </div>
               <span slot="foot">
-              <div style="margin-top:4vh;text-align:right">
-                <el-button size="small" @click="addMyTag" type="primary">确定</el-button>
-              </div>
+                <div style="margin-top:4vh;text-align:right">
+                  <el-button size="small" @click="addMyTag" type="primary">确定</el-button>
+                </div>
               </span>
             </div>
           </el-tab-pane>
-          <el-tab-pane label="搜索添加" name="second">
-        <div>
-            <el-input size="small" clearable style="width:50%" v-model="searchTag" placeholder="搜索" @keyup.enter.native="searchTagsByName"></el-input>
-        </div>
-        <div class="index__dialog-list"
-         v-loading="loading"
-         element-loading-text="拼命加载中"
-         element-loading-spinner="el-icon-loading">
-          <div class="index__dialog-list__one" v-for="(item, index) in allTags" :key="item.id" @click="addOneTag(item, index)">
-            <img :src=item.imgUrl :style="{'background': item.bgColor}">
-            <div class="index__dialog-list__one-info">
-              <div class="index__dialog-list__one-info__name">{{item.name}}</div>
-              <div class="index__dialog-list__one-info__msg">{{item.info}}</div>
-            </div>
-          </div>
-        </div>
-        </el-tab-pane>
         </el-tabs>
       </div>
     </el-dialog>
   </div>
 </template>
 <script>
-import {sortLikeWin, timeJS} from '../utils/commen'
-import {getTags, getUsualTags, searchTags} from '../utils/api'
+import { sortLikeWin, timeJS } from '../utils/commen'
+import { getTags, getUsualTags, searchTags } from '../utils/api'
 export default {
   data () {
     return {
-      select: '1', // 搜索源
+      select:
+        localStorage.getItem('select') == null
+          ? '1'
+          : localStorage.getItem('select'), // 搜索源
       searchInfo: '', // 搜索内容
       drawer: false, // 设置项显示隐藏
-      eff: true, // 主题选择
-      orderType: 0, // 排序类型
-      order: 0, // 排序顺序
+      eff:
+        localStorage.getItem('eff') == null ? '0' : localStorage.getItem('eff'), // 主题选择
+      orderType:
+        localStorage.getItem('orderType') == null
+          ? 0
+          : localStorage.getItem('orderType'), // 排序类型
+      order:
+        localStorage.getItem('order') == null
+          ? 0
+          : localStorage.getItem('order'), // 排序顺序
       dialogVisible: false, // 添加标签弹窗
-      allTags: [],
-      activeName: 'first',
+      allTags: [], // 所有标签
+      activeName: 'first', // 添加标签方式
       loading: true,
       searchTag: '', // 搜索标签
-      logoUrl: '',
       form: {
+        // 手动添加标签表单
         address: '',
         name: '',
         info: '',
-        logoUrl: '',
+        imgUrl: '',
         updateTime: ''
       },
       visible: [],
-      bg: localStorage.getItem('bg') == null ? 1 : localStorage.getItem('bg'),
+      bg: localStorage.getItem('bg') == null ? 1 : localStorage.getItem('bg'), // 背景选择
+      // 背景图片
       imageUrl:
         localStorage.getItem('imgData') == null
           ? ''
           : localStorage.getItem('imgData'),
+      // 背景颜色
       bgcolor:
         localStorage.getItem('bgcolor') == null
           ? 'rgba(64,158,255,0.6)'
           : localStorage.getItem('bgcolor'),
+      // 标签
       tagsList:
         localStorage.getItem('tags') == null
           ? []
@@ -271,6 +347,10 @@ export default {
     }
   },
   methods: {
+    changeSelect (value) {
+      // 搜索引擎
+      localStorage.setItem('select', value)
+    },
     toSearch () {
       let url = ''
       switch (this.select) {
@@ -290,7 +370,9 @@ export default {
           url = 'https://www.sina.com.cn/mid/search.shtml?q=' + this.searchInfo
           break
         case '6':
-          url = 'http://www.yodao.com/search?ue=utf8&keyfrom=web.index&q=' + this.searchInfo
+          url =
+            'http://www.yodao.com/search?ue=utf8&keyfrom=web.index&q=' +
+            this.searchInfo
           break
       }
       window.location.href = url
@@ -305,8 +387,16 @@ export default {
       localStorage.setItem('bgcolor', e)
     },
     // 改变背景图片
-    toclickF () { // 背景图片
+    toclickF () {
+      // 背景图片
       document.getElementById('getImg').click()
+    },
+    clearPopover (index) { // 自动关闭标签选项
+      console.log(index)
+      setTimeout(() => {
+        this.$forceUpdate()
+        this.visible[index] = false
+      }, 3000)
     },
     clickF (event) {
       let file = event.target.files[0]
@@ -318,6 +408,11 @@ export default {
       }
       fReader.readAsDataURL(file)
     },
+    chooseEff (value) {
+      // 主题选择
+      this.eff = value
+      localStorage.setItem('eff', this.eff)
+    },
     // 手动添加标签时选择logo
     toclickF1 () {
       document.getElementById('getLogo').click()
@@ -327,7 +422,7 @@ export default {
       var fReader = new FileReader()
       fReader.onload = () => {
         // 将图片转码为base64存储localStorage
-        this.form.logoUrl = fReader.result
+        this.form.imgUrl = fReader.result
       }
       fReader.readAsDataURL(file)
     },
@@ -354,17 +449,23 @@ export default {
       return a - b
     },
     changeOrder () {
-      if (this.orderType === '1') { // 根据名称排序
+      if (this.orderType === '1') {
+        // 根据名称排序
         this.tagsList.sort((a, b) => sortLikeWin(a.name, b.name))
         if (this.order === 1) {
           this.tagsList.reverse()
         }
-      } else { // 根据时间排序
-        this.tagsList.sort((a, b) => this.sortByTime(a.updateTime, b.updateTime))
+      } else {
+        // 根据时间排序
+        this.tagsList.sort((a, b) =>
+          this.sortByTime(a.updateTime, b.updateTime)
+        )
         if (this.order === 1) {
           this.tagsList.reverse()
         }
       }
+      localStorage.setItem('orderType', this.orderType)
+      localStorage.setItem('order', this.order)
     },
     // 打开添加标签弹窗
     addTag () {
@@ -376,7 +477,7 @@ export default {
       let params = {
         name: this.searchTag
       }
-      searchTags(params).then(res => {
+      searchTags(params).then((res) => {
         if (res.code === 200) {
           this.allTags = res.data
         }
@@ -423,25 +524,28 @@ export default {
       this.visible[index] = false
       this.setVisible()
     },
-    setVisible () { // 设置popover
+    setVisible () {
+      // 设置popover
       let l = this.tagsList
       for (let i = 0; i < l; i++) {
         this.visible[i] = false
       }
     }
   },
-  mounted () {
+  created () {
+    this.order = Number(this.order)
+    this.changeOrder()
     this.setVisible()
     // 获取默认的标签页
     if (this.tagsList.length === 0) {
-      getUsualTags().then(res => {
+      getUsualTags().then((res) => {
         if (res.code === 200) {
           this.tagsList = res.data
           localStorage.setItem('tags', JSON.stringify(this.tagsList))
         }
       })
     }
-    getTags().then(res => {
+    getTags().then((res) => {
       if (res.code === 200) {
         this.allTags = res.data
         this.loading = false
@@ -451,8 +555,8 @@ export default {
 }
 </script>
 <style lang="less">
-div{
-  outline:none;
+div {
+  outline: none;
 }
 html,
 body .index {
@@ -502,7 +606,7 @@ body .index {
           padding: 3% 3% 3% 3%;
           height: 14vh;
           overflow: hidden;
-          text-overflow:ellipsis;
+          text-overflow: ellipsis;
           &__name {
             width: 100%;
             font-size: 1.2vw;
@@ -520,10 +624,10 @@ body .index {
         border-radius: 5px;
         box-shadow: 0 0 15px 0 #409eff;
       }
-      &__add{
+      &__add {
         width: 23%;
         height: 14vh;
-        color: #C0C4CC;
+        color: #c0c4cc;
         font-size: 5vw;
         line-height: 14vh;
         border: 1px dashed #409eff;
@@ -535,7 +639,7 @@ body .index {
         cursor: pointer;
         margin-top: 1.5vw;
       }
-      &__add:hover{
+      &__add:hover {
         opacity: 0.85;
       }
       &__more {
@@ -585,17 +689,17 @@ body .index {
           font-weight: bold;
         }
       }
-      .addDiv{
+      .addDiv {
         cursor: pointer;
         width: 14vw;
         height: 14vw;
         margin-top: 2vw;
         text-align: center;
       }
-      &__add{
+      &__add {
         width: 9vw;
         height: 9vw;
-        color: #C0C4CC;
+        color: #c0c4cc;
         font-size: 3vw;
         line-height: 9vw;
         border: 1px dashed #409eff;
@@ -607,7 +711,7 @@ body .index {
         cursor: pointer;
         margin-left: 2.5vw;
       }
-      &__add:hover{
+      &__add:hover {
         opacity: 0.85;
       }
       &__more {
@@ -718,12 +822,12 @@ body .index {
       margin-left: 5%;
     }
   }
-  &__dialog{
+  &__dialog {
     height: 65vh;
     &-list::-webkit-scrollbar {
       display: none;
     }
-    &-list{
+    &-list {
       height: 50vh;
       display: flex;
       flex-wrap: wrap;
@@ -741,9 +845,9 @@ body .index {
           height: 10vh;
           border-radius: 5px 0 0 5px;
         }
-        &-info{
+        &-info {
           cursor: pointer;
-          background: #E4E7ED;
+          background: #e4e7ed;
           width: 100%;
           opacity: 0.85;
           border-radius: 0 5px 5px 0;
@@ -848,7 +952,7 @@ body .index {
   // 去掉弹出层点击时产生的黑色border
   outline: none;
 }
-.el-popover{
+.el-popover {
   padding: 0;
 }
 .el-popper[x-placement^="bottom"] {
@@ -857,9 +961,9 @@ body .index {
 .el-popper[x-placement^="top"] {
   margin-bottom: -10px;
 }
-.popper{
+.popper {
   text-align: center;
-  /deep/ .el-divider--horizontal{
+  /deep/ .el-divider--horizontal {
     margin: 0;
   }
 }

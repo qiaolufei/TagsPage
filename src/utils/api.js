@@ -1,7 +1,8 @@
 import {post, get} from './http'
 import qs from 'qs'
 
-const api = 'http://localhost:8080'
+// const api = 'http://localhost:8080'
+const api = 'http://175.24.122.85:8080'
 
 // 获取所有标签
 export const getTags = () => {
