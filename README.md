@@ -37,8 +37,8 @@
 鼠标移动到页面最右边弹出设置功能面板（目前支持背景设置、主题选择、标签排序）
 ![markdown](https://github.com/qiaolufei/TagsPage/blob/master/screenshot/4.png "设置功能")
 纯色背景效果以及简洁主题展示
-![markdown](https://github.com/qiaolufei/luTagsPageffy/blob/master/screenshot/5.png "关于我")
+![markdown](https://github.com/qiaolufei/TagsPage/blob/master/screenshot/5.png "效果切换")
 手动添加标签
-![markdown](https://github.com/qiaolufei/TagsPage/blob/master/screenshot/6.png "待办事项")
+![markdown](https://github.com/qiaolufei/TagsPage/blob/master/screenshot/6.png "手动添加")
 搜索添加标签
-![markdown](https://github.com/qiaolufei/TagsPage/blob/master/screenshot/7.png "留言板")
+![markdown](https://github.com/qiaolufei/TagsPage/blob/master/screenshot/7.png "搜索添加")
