@@ -50,3 +50,5 @@
 ![markdown](https://github.com/qiaolufei/TagsPage/blob/master/screenshot/6.png "手动添加")
 搜索添加标签
 ![markdown](https://github.com/qiaolufei/TagsPage/blob/master/screenshot/7.png "搜索添加")
+编辑标签
+![markdown](https://github.com/qiaolufei/TagsPage/blob/master/screenshot/8.png "编辑标签")
