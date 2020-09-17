@@ -47,7 +47,7 @@
               <el-divider></el-divider>
               <el-link @click.native="chooseNew(item.address, index)" :underline="false">新窗口打开</el-link>
               <el-divider></el-divider>
-              <el-link :underline="false" type="primary">编辑</el-link>
+              <el-link @click.native="editTag(item, index)" :underline="false" type="primary">编辑</el-link>
               <el-divider></el-divider>
               <el-link @click.native="deleteTag(item, index)" :underline="false" type="danger">删除</el-link>
             </div>
@@ -74,7 +74,8 @@
         </div>
         <div v-for="j in (4-(tagsList.length+1)%4)" :key="j" class="index__body-effTags__more"></div>
       </div>
-      <div v-else class="index__body-conTags">
+      <div v-else class="index__body-conTags"
+        ref="parentNode">
         <div v-for="(item, index) of tagsList" :key="item.id" class="index__body-conTags__one">
           <el-popover
             transition="el-zoom-in-top"
@@ -90,7 +91,7 @@
               <el-divider></el-divider>
               <el-link @click.native="chooseNew(item.address, index)" :underline="false">新窗口打开</el-link>
               <el-divider></el-divider>
-              <el-link :underline="false" type="primary">编辑</el-link>
+              <el-link @click.native="editTag(item, index)" :underline="false" type="primary">编辑</el-link>
               <el-divider></el-divider>
               <el-link @click.native="deleteTag(item, index)" :underline="false" type="danger">删除</el-link>
             </div>
@@ -235,49 +236,70 @@
           <el-tab-pane label="手动添加" name="second">
             <div class="index__dialog-form">
               <div>
+                <span style="color:#E82B1F">*</span>
                 <span>地址：</span>
                 <el-input
-                  v-model="form.address"
                   style="width:50%"
                   size="small"
+                  placeholder="网站地址"
                   clearable
-                  placeholder="请输入地址(必填)"
-                ></el-input>
+                  v-model="form.address"
+                  class="input-with-select"
+                >
+                  <el-select v-model="selectHttp" slot="prepend" placeholder="请选择">
+                    <el-option label="http://" value="1"></el-option>
+                    <el-option label="https://" value="2"></el-option>
+                  </el-select>
+                </el-input>
               </div>
               <div style="margin-top:1vw">
+                <span style="color:#E82B1F">*</span>
                 <span>名称：</span>
                 <el-input
                   v-model="form.name"
                   style="width:50%"
                   size="small"
                   clearable
-                  placeholder="请输入名称(必填)"
+                  placeholder="网站名称"
                 ></el-input>
               </div>
               <div style="margin-top:1vw">
-                <span style="vertical-align:top">描述：</span>
+                <span style="vertical-align:top">&ensp;&nbsp;描述：</span>
                 <el-input
                   v-model="form.info"
                   type="textarea"
                   resize="none"
                   style="width:50%"
                   size="small"
-                  clearable
-                  placeholder="相关描述(选填)"
+                  placeholder="网站描述"
+                  aria-required="true"
                 ></el-input>
               </div>
               <div style="margin-top:1vw">
-                <span style="vertical-align:top">logo：</span>
-                <input
-                  id="getLogo"
-                  type="file"
-                  accept=".jpg, .png, .gif, .bmp, .jpeg"
-                  style="display:none"
-                  @change="clickF1"
-                />
-                <div class="avatar-uploader1">
-                  <img v-if="form.imgUrl" @click="toclickF1" :src="form.imgUrl" class="avatar1" />
-                  <i v-else @click="toclickF1" class="el-icon-plus avatar-uploader-icon1"></i>
+                <div style="display:inline-block;">
+                  <span style="color:#E82B1F;vertical-align:top">*</span>
+                  <span style="vertical-align:top">logo：</span>
+                  <input
+                    id="getLogo"
+                    type="file"
+                    accept=".jpg, .png, .gif, .bmp, .jpeg"
+                    style="display:none"
+                    @change="clickF1"
+                  />
+                  <div class="avatar-uploader1">
+                    <img
+                      v-if="form.imgUrl"
+                      @click="toclickF1"
+                      :src="form.imgUrl"
+                      :style="{'background': form.bgColor}"
+                      class="avatar1"
+                    />
+                    <i v-else @click="toclickF1" class="el-icon-plus avatar-uploader-icon1"></i>
+                  </div>
+                </div>
+                <div style="display:inline-block;vertical-align:top;margin-left:20px">
+                  <span style="vertical-align:top">背景颜色：</span>
+                  <el-color-picker v-model="form.bgColor" @active-change="logoColorChange"></el-color-picker>
                 </div>
               </div>
               <span slot="foot">
@@ -290,10 +312,75 @@
         </el-tabs>
       </div>
     </el-dialog>
+    <el-dialog title="编辑标签" :visible.sync="dialogVisibleEdit" width="50%">
+      <div class="index__dialog-form">
+        <div>
+          <span style="color:#E82B1F">*</span>
+          <span>地址：</span>
+          <el-input
+            style="width:50%"
+            size="small"
+            placeholder="网站地址"
+            clearable
+            v-model="editForm.address"
+            class="input-with-select"
+          >
+          </el-input>
+        </div>
+        <div style="margin-top:1vw">
+          <span style="color:#E82B1F">*</span>
+          <span>名称：</span>
+          <el-input v-model="editForm.name" style="width:50%" size="small" clearable placeholder="网站名称"></el-input>
+        </div>
+        <div style="margin-top:1vw">
+          <span style="vertical-align:top">&ensp;&nbsp;描述：</span>
+          <el-input
+            v-model="editForm.info"
+            type="textarea"
+            resize="none"
+            style="width:50%"
+            size="small"
+            placeholder="网站描述"
+            aria-required="true"
+          ></el-input>
+        </div>
+        <div style="margin-top:1vw">
+          <div style="display:inline-block;">
+            <span style="color:#E82B1F;vertical-align:top">*</span>
+            <span style="vertical-align:top">logo：</span>
+            <input
+              id="getLogo2"
+              type="file"
+              accept=".jpg, .png, .gif, .bmp, .jpeg"
+              style="display:none"
+              @change="clickF2"
+            />
+            <div class="avatar-uploader1">
+              <img
+                v-if="editForm.imgUrl"
+                @click="toclickF2"
+                :src="editForm.imgUrl"
+                :style="{'background': editForm.bgColor}"
+                class="avatar1"
+              />
+              <i v-else @click="toclickF2" class="el-icon-plus avatar-uploader-icon1"></i>
+            </div>
+          </div>
+          <div style="display:inline-block;vertical-align:top;margin-left:20px">
+            <span style="vertical-align:top">背景颜色：</span>
+            <el-color-picker v-model="editForm.bgColor" @active-change="logoColorChange2"></el-color-picker>
+          </div>
+        </div>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button size="small" @click="dialogVisibleEdit = false">取 消</el-button>
+        <el-button size="small" @click="saveEdit" type="primary">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 <script>
-import { sortLikeWin, timeJS } from '../utils/commen'
+import { sortLikeWin, timeJS, isNullAndEmpty, objectJS } from '../utils/commen'
 import { getTags, getUsualTags, searchTags } from '../utils/api'
 export default {
   data () {
@@ -315,16 +402,22 @@ export default {
           ? 0
           : localStorage.getItem('order'), // 排序顺序
       dialogVisible: false, // 添加标签弹窗
+      dialogVisibleEdit: false, // 编辑标签弹窗
+      editForm: {}, // 编辑表单
+      editIndex: 0, // 编辑标签的数组下标
+      page: 0,
       allTags: [], // 所有标签
       activeName: 'first', // 添加标签方式
       loading: true,
       searchTag: '', // 搜索标签
+      selectHttp: '1',
       form: {
         // 手动添加标签表单
         address: '',
         name: '',
         info: '',
         imgUrl: '',
+        bgColor: '#409eff',
         updateTime: ''
       },
       visible: [],
@@ -343,7 +436,9 @@ export default {
       tagsList:
         localStorage.getItem('tags') == null
           ? []
-          : JSON.parse(localStorage.getItem('tags'))
+          : JSON.parse(localStorage.getItem('tags')),
+      draging: null, // 被拖拽的对象
+      target: null // 目标对象
     }
   },
   methods: {
@@ -386,13 +481,19 @@ export default {
       this.bgcolor = e
       localStorage.setItem('bgcolor', e)
     },
+    logoColorChange (e) { // 添加标签
+      this.form.bgColor = e
+    },
+    logoColorChange2 (e) { // 编辑标签
+      this.editForm.bgColor = e
+    },
     // 改变背景图片
     toclickF () {
       // 背景图片
       document.getElementById('getImg').click()
     },
-    clearPopover (index) { // 自动关闭标签选项
-      console.log(index)
+    clearPopover (index) {
+      // 自动关闭标签选项
       setTimeout(() => {
         this.$forceUpdate()
         this.visible[index] = false
@@ -423,6 +524,19 @@ export default {
       fReader.onload = () => {
         // 将图片转码为base64存储localStorage
         this.form.imgUrl = fReader.result
+      }
+      fReader.readAsDataURL(file)
+    },
+    // 手动添加标签时选择logo
+    toclickF2 () {
+      document.getElementById('getLogo2').click()
+    },
+    clickF2 (event) {
+      let file = event.target.files[0]
+      var fReader = new FileReader()
+      fReader.onload = () => {
+        // 将图片转码为base64存储localStorage
+        this.editForm.imgUrl = fReader.result
       }
       fReader.readAsDataURL(file)
     },
@@ -474,14 +588,36 @@ export default {
     },
     // 搜索标签
     searchTagsByName () {
-      let params = {
-        name: this.searchTag
-      }
-      searchTags(params).then((res) => {
-        if (res.code === 200) {
-          this.allTags = res.data
+      this.loading = true
+      if (!isNullAndEmpty(this.searchTag)) {
+        let params = {
+          name: this.searchTag
         }
-      })
+        searchTags(params).then((res) => {
+          if (res.code === 200) {
+            this.allTags = res.data
+            this.loading = false
+          } else if (res.code === 201) {
+            this.$message.warning(
+              '抱歉！未能查询到' + this.searchTag + ',请重新输入'
+            )
+            this.searchTag = ''
+            getTags().then((res) => {
+              if (res.code === 200) {
+                this.allTags = res.data
+                this.loading = false
+              }
+            })
+          }
+        })
+      } else {
+        getTags().then((res) => {
+          if (res.code === 200) {
+            this.allTags = res.data
+            this.loading = false
+          }
+        })
+      }
     },
     // 手动添加
     addMyTag () {
@@ -489,12 +625,24 @@ export default {
         return this.form.name === item1.name
       })
       if (!b) {
-        this.form.updateTime = timeJS.getNowTime('timestamp')
-        this.tagsList.push(this.form)
-        this.setVisible()
-        localStorage.setItem('tags', JSON.stringify(this.tagsList))
-        this.dialogVisible = false
-        this.$message.success('添加成功！')
+        if (isNullAndEmpty(this.form.address)) {
+          this.$notify.error('请填写网站地址')
+        } else if (isNullAndEmpty(this.form.name)) {
+          this.$notify.error('请填写网站名称')
+        } else if (isNullAndEmpty(this.form.imgUrl)) {
+          this.$notify.error('请上传网站Logo')
+        } else {
+          this.dialogVisible = false
+          this.$message.success('添加成功！')
+          this.form.updateTime = timeJS.getNowTime('timestamp')
+          let m = this.selectHttp === '1' ? 'http://' : 'https://'
+          this.form.address = m + this.form.address
+          let {...obj} = this.form
+          this.tagsList.push(obj)
+          this.setVisible()
+          localStorage.setItem('tags', JSON.stringify(this.tagsList))
+          objectJS.clearValue(this.form)
+        }
       } else {
         this.$message.warning(this.form.name + '标签已存在！')
       }
@@ -530,11 +678,33 @@ export default {
       for (let i = 0; i < l; i++) {
         this.visible[i] = false
       }
+    },
+    editTag (item, index) {
+      this.dialogVisibleEdit = true
+      this.editForm = item
+      this.editIndex = this.tagsList.find((t) => {
+        t.name = this.this.editForm
+      })
+    },
+    saveEdit () { // 编辑标签
+      if (isNullAndEmpty(this.editForm.address)) {
+        this.$notify.error('请填写网站地址')
+      } else if (isNullAndEmpty(this.editForm.name)) {
+        this.$notify.error('请填写网站名称')
+      } else if (isNullAndEmpty(this.editForm.imgUrl)) {
+        this.$notify.error('请上传网站Logo')
+      } else {
+        this.dialogVisibleEdit = false
+        this.$message.success('编辑成功！')
+        this.tagsList[this.index] = this.editForm
+        this.setVisible()
+        localStorage.setItem('tags', JSON.stringify(this.tagsList))
+      }
     }
   },
   created () {
     this.order = Number(this.order)
-    this.changeOrder()
+    // this.changeOrder()
     this.setVisible()
     // 获取默认的标签页
     if (this.tagsList.length === 0) {
@@ -833,12 +1003,18 @@ body .index {
       flex-wrap: wrap;
       justify-content: space-between;
       overflow-y: scroll;
+      padding: 8px;
+      &__one:hover {
+        border-radius: 5px;
+        box-shadow: 0 0 15px 0 #409eff;
+      }
       &__one {
         width: 40%;
         height: 10vh;
         margin-top: 1vw;
         display: flex;
         flex-direction: row;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
         img {
           cursor: pointer;
           width: 10vh;
@@ -847,7 +1023,6 @@ body .index {
         }
         &-info {
           cursor: pointer;
-          background: #e4e7ed;
           width: 100%;
           opacity: 0.85;
           border-radius: 0 5px 5px 0;
@@ -970,5 +1145,8 @@ body .index {
 .el-tabs__item {
   height: 2vw;
   line-height: 2vw;
+}
+.el-form-item__label {
+  line-height: 10px;
 }
 </style>
