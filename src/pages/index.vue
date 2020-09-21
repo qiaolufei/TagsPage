@@ -22,6 +22,7 @@
             <el-option label="Yahoo!" value="4"></el-option>
             <el-option label="新浪" value="5"></el-option>
             <el-option label="网易" value="6"></el-option>
+            <el-option label="知乎" value="7"></el-option>
           </el-select>
         </el-input>
       </div>
@@ -465,9 +466,10 @@ export default {
           url = 'https://www.sina.com.cn/mid/search.shtml?q=' + this.searchInfo
           break
         case '6':
-          url =
-            'http://www.yodao.com/search?ue=utf8&keyfrom=web.index&q=' +
-            this.searchInfo
+          url = 'http://www.yodao.com/search?ue=utf8&keyfrom=web.index&q=' + this.searchInfo
+          break
+        case '7':
+          url = 'https://www.zhihu.com/search?type=content&q=' + this.searchInfo
           break
       }
       window.location.href = url
