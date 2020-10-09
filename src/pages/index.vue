@@ -65,7 +65,7 @@
               />
               <div @contextmenu.prevent="chooseTag(index)" class="index__body-effTags__one-info">
                 <div class="index__body-effTags__one-info__name">{{item.name}}</div>
-                <div class="index__body-effTags__one-info__msg">{{item.info}}</div>
+                <div class="index__body-effTags__one-info__msg" show-overflow-tooltip="true">{{item.info}}</div>
               </div>
             </div>
           </el-popover>
@@ -73,7 +73,7 @@
         <div @click="addTag" class="index__body-effTags__add">
           <i class="el-icon-plus"></i>
         </div>
-        <div v-for="j in (4-(tagsList.length+1)%4)" :key="j" class="index__body-effTags__more"></div>
+        <div v-for="j in (4-(tagsList.length+1)%4)" :key="j + 'x'" class="index__body-effTags__more"></div>
       </div>
       <div v-else class="index__body-conTags"
         ref="parentNode">
@@ -115,7 +115,7 @@
             <i class="el-icon-plus"></i>
           </div>
         </div>
-        <div v-for="y in (5-(tagsList.length+1)%5)" :key="y" class="index__body-conTags__more"></div>
+        <div v-for="y in (6-(tagsList.length+1)%6)" :key="y + 'y'" class="index__body-conTags__more"></div>
       </div>
     </div>
     <!-- 设置项 -->
@@ -200,7 +200,7 @@
         </div>
       </div>
     </el-drawer>
-    <el-dialog :visible.sync="dialogVisible" width="50%" title="添加标签">
+    <el-dialog :visible.sync="dialogVisible" :close-on-click-modal="false" width="50%" title="添加标签" @close="setFlag">
       <div class="index__dialog">
         <el-tabs size="mini" v-model="activeName" type="card">
           <el-tab-pane label="搜索添加" name="first">
@@ -211,6 +211,7 @@
                 style="width:50%"
                 v-model="searchTag"
                 placeholder="搜索"
+                prefix-icon="el-icon-search"
                 @keyup.enter.native="searchTagsByName"
               ></el-input>
             </div>
@@ -313,7 +314,7 @@
         </el-tabs>
       </div>
     </el-dialog>
-    <el-dialog title="编辑标签" :visible.sync="dialogVisibleEdit" width="50%">
+    <el-dialog title="编辑标签" :close-on-click-modal="false" :visible.sync="dialogVisibleEdit" width="50%">
       <div class="index__dialog-form">
         <div>
           <span style="color:#E82B1F">*</span>
@@ -378,6 +379,30 @@
         <el-button size="small" @click="saveEdit" type="primary">确 定</el-button>
       </span>
     </el-dialog>
+    <el-dialog title="教程"
+               :visible.sync="dialogVisibleUse"
+               width="60%"
+               :close-on-click-modal="false"
+               >
+        <div style="height:70vh;overflow:hidden;overflow-y: scroll;">
+       <div>&emsp;&emsp;&emsp;感谢您使用本标签页，首先请您耐心阅读相关使用教程。</div>
+       <div style="margin:10px 0 4px 0"><span style="color:#409EFF"><i class="el-icon-help"></i>搜索引擎切换</span>--支持多款主流搜索，简单便捷。</div>
+       <img src="../img/1.png" style="width:90%">
+       <div style="margin:10px 0 4px 0"><span style="color:#409EFF"><i class="el-icon-help"></i>自定义设置(鼠标移至最右侧显示)</span>--支持自定义背景、主题、排序等功能。</div>
+       <img src="../img/2.png" style="width:90%">
+       <img src="../img/6.jpg" style="width:90%">
+       <div style="margin:10px 0 4px 0"><span style="color:#409EFF"><i class="el-icon-help"></i>添加标签</span>--支持搜索添加以及手动添加。</div>
+       <img src="../img/3.png" style="width:90%">
+       <img src="../img/4.jpg" style="width:90%">
+       <div style="margin:10px 0 4px 0"><span style="color:#409EFF"><i class="el-icon-help"></i>编辑标签(点击鼠标右键)</span>--支持编辑、删除等功能。</div>
+       <img src="../img/5.png" style="width:90%">
+       <div style="margin:10px 0 4px 0;color:#409EFF"><i class="el-icon-s-opportunity"></i>更多功能敬请期待!</div>
+        <img style="position: absolute; top: 0; left: 0; border: 0;"
+        src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png"
+        alt="Fork me on GitHub"
+        @click="toGitHub">
+    </div>
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -386,6 +411,7 @@ import { getTags, getUsualTags, searchTags } from '../utils/api'
 export default {
   data () {
     return {
+      dialogVisibleUse: true,
       select:
         localStorage.getItem('select') == null
           ? '1'
@@ -443,6 +469,10 @@ export default {
     }
   },
   methods: {
+    toGitHub () {
+      window.open('https://github.com/qiaolufei/TagsPage/issues')
+    },
+    setFlag () {},
     changeSelect (value) {
       // 搜索引擎
       localStorage.setItem('select', value)
@@ -755,10 +785,11 @@ body .index {
       display: flex;
       flex-wrap: wrap;
       justify-content: space-between;
+      align-content:flex-start;
       &__one {
         width: 23%;
         height: 14vh;
-        margin-top: 1.5vw;
+        margin-top: 2vw;
         box-sizing: border-box;
         display: flex;
         flex-direction: row;
@@ -766,14 +797,13 @@ body .index {
           cursor: pointer;
           width: 14vh;
           height: 14vh;
-          border-radius: 5px 0 0 5px;
+          border-radius: 8px 0 0 8px;
         }
         &-info {
           width: 11.6vw;
           cursor: pointer;
           background: #fff;
-          opacity: 0.85;
-          border-radius: 0 5px 5px 0;
+          border-radius: 0 8px 8px 0;
           box-sizing: border-box;
           padding: 3% 3% 3% 3%;
           height: 14vh;
@@ -788,31 +818,36 @@ body .index {
             width: 100%;
             margin-top: 0.5vw;
             font-size: 1vw;
-            color: #606266;
+            line-height: 1.2vw;
+            color: #909399;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
           }
         }
       }
       &__one:hover {
-        border-radius: 5px;
+        border-radius: 8px;
         box-shadow: 0 0 15px 0 #409eff;
       }
       &__add {
         width: 23%;
         height: 14vh;
-        color: #c0c4cc;
-        font-size: 5vw;
+        color: #fff;
+        font-size: 4vw;
         line-height: 14vh;
-        border: 1px dashed #409eff;
         box-sizing: border-box;
-        border-radius: 5px;
+        border-radius: 8px;
         text-align: center;
-        background: #fff;
-        opacity: 0.25;
+        background: rgba(255, 255, 255, 0.5);
         cursor: pointer;
-        margin-top: 1.5vw;
+        margin-top: 2vw;
       }
       &__add:hover {
-        opacity: 0.85;
+        background: rgba(255, 255, 255, 0.8);
+        color:#409eff
       }
       &__more {
         width: 23%;
@@ -831,15 +866,15 @@ body .index {
       display: flex;
       flex-wrap: wrap;
       justify-content: space-between;
+      align-content:flex-start;
       &__one {
         cursor: pointer;
-        width: 14vw;
-        height: 14vw;
-        margin-top: 1vw;
+        width: 12vw;
+        height: 12vw;
         text-align: center;
         img {
-          width: 9vw;
-          height: 9vw;
+          width: 50%;
+          height: 50%;
           border-radius: 10px;
           -webkit-transition: -webkit-transform 1s ease-out;
           -moz-transition: -moz-transform 1s ease-out;
@@ -863,32 +898,31 @@ body .index {
       }
       .addDiv {
         cursor: pointer;
-        width: 14vw;
-        height: 14vw;
-        margin-top: 2vw;
+        width: 12vw;
+        height: 12vw;
+        margin-top: 1vw;
         text-align: center;
       }
       &__add {
-        width: 9vw;
-        height: 9vw;
-        color: #c0c4cc;
-        font-size: 3vw;
-        line-height: 9vw;
-        border: 1px dashed #409eff;
+        width: 6vw;
+        height: 6vw;
+        color: #fff;
+        font-size: 4vw;
+        line-height: 6vw;
         box-sizing: border-box;
         border-radius: 10px;
         text-align: center;
-        background: #fff;
-        opacity: 0.25;
+        background: rgba(255, 255, 255, 0.5);
         cursor: pointer;
-        margin-left: 2.5vw;
+        margin-left: 3vw;
       }
       &__add:hover {
-        opacity: 0.85;
+        background: rgba(255, 255, 255, 0.8);
+        color:#409eff
       }
       &__more {
-        width: 14vw;
-        height: 14vw;
+        width: 12vw;
+        height: 12vw;
       }
     }
   }
@@ -936,6 +970,7 @@ body .index {
           display: flex;
           flex-wrap: wrap;
           justify-content: space-between;
+           align-content:flex-start;
           height: 80%;
           &__one {
             width: 1.5vw;
@@ -974,6 +1009,7 @@ body .index {
           display: flex;
           flex-wrap: wrap;
           justify-content: space-between;
+          align-content:flex-start;
           height: 80%;
           &__one {
             width: 1vw;
@@ -1004,6 +1040,7 @@ body .index {
       display: flex;
       flex-wrap: wrap;
       justify-content: space-between;
+      align-content:flex-start;
       overflow-y: scroll;
       padding: 8px;
       &__one:hover {
@@ -1039,6 +1076,11 @@ body .index {
             margin-top: 0.1vw;
             font-size: 0.6vw;
             color: #606266;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
           }
         }
       }
