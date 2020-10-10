@@ -200,7 +200,7 @@
         </div>
       </div>
     </el-drawer>
-    <el-dialog :visible.sync="dialogVisible" :close-on-click-modal="false" width="50%" title="添加标签" @close="setFlag">
+    <el-dialog :visible.sync="dialogVisible" :close-on-click-modal="false" width="50%" title="添加标签">
       <div class="index__dialog">
         <el-tabs size="mini" v-model="activeName" type="card">
           <el-tab-pane label="搜索添加" name="first">
@@ -383,6 +383,7 @@
                :visible.sync="dialogVisibleUse"
                width="60%"
                :close-on-click-modal="false"
+               @close="setFlag"
                >
         <div style="height:70vh;overflow:hidden;overflow-y: scroll;">
        <div>&emsp;&emsp;&emsp;感谢您使用本标签页，首先请您耐心阅读相关使用教程。</div>
@@ -472,7 +473,10 @@ export default {
     toGitHub () {
       window.open('https://github.com/qiaolufei/TagsPage/issues')
     },
-    setFlag () {},
+    setFlag () {
+      console.log('...')
+      localStorage.setItem('readFirst', 0)
+    },
     changeSelect (value) {
       // 搜索引擎
       localStorage.setItem('select', value)
@@ -735,6 +739,9 @@ export default {
     }
   },
   created () {
+    if (localStorage.getItem('readFirst') !== null) {
+      this.dialogVisibleUse = false
+    }
     this.order = Number(this.order)
     // this.changeOrder()
     this.setVisible()
