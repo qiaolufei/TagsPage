@@ -1,11 +1,21 @@
 <template>
   <div
     class="index"
-    :style="(bg == 0 && imageUrl != '')? {'background': 'url(' + imageUrl + ')', 'background-size': '100% 100%'} : {background: bgcolor}"
+    :style="
+      bg == 0 && imageUrl != ''
+        ? {
+            background: 'url(' + imageUrl + ')',
+            'background-size': '100% 100%',
+          }
+        : { background: bgcolor }
+    "
   >
     <div class="index__body">
       <!-- 显示设置项 -->
-      <div style="position:fixed;width:10px;height:100vh;right:0" @mouseenter="drawer = true"></div>
+      <div
+        style="position: fixed; width: 10px; height: 100vh; right: 0"
+        @mouseenter="drawer = true"
+      ></div>
       <!-- 搜索栏 -->
       <div class="index__body-search">
         <el-input
@@ -13,7 +23,7 @@
           clearable
           @keyup.enter.native="toSearch"
           placeholder="搜索"
-          style="width:60%"
+          style="width: 60%"
         >
           <el-select v-model="select" @change="changeSelect" slot="prepend">
             <el-option label="百度" value="1"></el-option>
@@ -44,28 +54,56 @@
             v-model="visible[index]"
           >
             <div class="popper">
-              <el-link @click.native="choose(item.address, index)" :underline="false">当前页打开</el-link>
+              <el-link
+                @click.native="choose(item.address, index)"
+                :underline="false"
+                >当前页打开</el-link
+              >
               <el-divider></el-divider>
-              <el-link @click.native="chooseNew(item.address, index)" :underline="false">新窗口打开</el-link>
+              <el-link
+                @click.native="chooseNew(item.address, index)"
+                :underline="false"
+                >新窗口打开</el-link
+              >
               <el-divider></el-divider>
-              <el-link @click.native="editTag(item, index)" :underline="false" type="primary">编辑</el-link>
+              <el-link
+                @click.native="editTag(item, index)"
+                :underline="false"
+                type="primary"
+                >编辑</el-link
+              >
               <el-divider></el-divider>
-              <el-link @click.native="deleteTag(item, index)" :underline="false" type="danger">删除</el-link>
+              <el-link
+                @click.native="deleteTag(item, index)"
+                :underline="false"
+                type="danger"
+                >删除</el-link
+              >
             </div>
             <div
               @mouseleave="clearPopover(index)"
               slot="reference"
-              style="display:flex;flex-direction:row"
+              style="display: flex; flex-direction: row"
             >
               <img
                 :src="item.imgUrl"
                 @contextmenu.prevent="chooseTag(index)"
-                :style="{'background': item.bgColor}"
-                style="display:inline-block"
+                :style="{ background: item.bgColor }"
+                style="display: inline-block"
               />
-              <div @contextmenu.prevent="chooseTag(index)" class="index__body-effTags__one-info">
-                <div class="index__body-effTags__one-info__name">{{item.name}}</div>
-                <div class="index__body-effTags__one-info__msg" show-overflow-tooltip="true">{{item.info}}</div>
+              <div
+                @contextmenu.prevent="chooseTag(index)"
+                class="index__body-effTags__one-info"
+              >
+                <div class="index__body-effTags__one-info__name">
+                  {{ item.name }}
+                </div>
+                <div
+                  class="index__body-effTags__one-info__msg"
+                  show-overflow-tooltip="true"
+                >
+                  {{ item.info }}
+                </div>
               </div>
             </div>
           </el-popover>
@@ -73,11 +111,18 @@
         <div @click="addTag" class="index__body-effTags__add">
           <i class="el-icon-plus"></i>
         </div>
-        <div v-for="j in (4-(tagsList.length+1)%4)" :key="j + 'x'" class="index__body-effTags__more"></div>
+        <div
+          v-for="j in 4 - ((tagsList.length + 1) % 4)"
+          :key="j + 'x'"
+          class="index__body-effTags__more"
+        ></div>
       </div>
-      <div v-else class="index__body-conTags"
-        ref="parentNode">
-        <div v-for="(item, index) of tagsList" :key="item.id" class="index__body-conTags__one">
+      <div v-else class="index__body-conTags" ref="parentNode">
+        <div
+          v-for="(item, index) of tagsList"
+          :key="item.id"
+          class="index__body-conTags__one"
+        >
           <el-popover
             transition="el-zoom-in-top"
             popper-class="myPopover"
@@ -88,13 +133,31 @@
             v-model="visible[index]"
           >
             <div class="popper">
-              <el-link @click.native="choose(item.address, index)" :underline="false">当前页打开</el-link>
+              <el-link
+                @click.native="choose(item.address, index)"
+                :underline="false"
+                >当前页打开</el-link
+              >
               <el-divider></el-divider>
-              <el-link @click.native="chooseNew(item.address, index)" :underline="false">新窗口打开</el-link>
+              <el-link
+                @click.native="chooseNew(item.address, index)"
+                :underline="false"
+                >新窗口打开</el-link
+              >
               <el-divider></el-divider>
-              <el-link @click.native="editTag(item, index)" :underline="false" type="primary">编辑</el-link>
+              <el-link
+                @click.native="editTag(item, index)"
+                :underline="false"
+                type="primary"
+                >编辑</el-link
+              >
               <el-divider></el-divider>
-              <el-link @click.native="deleteTag(item, index)" :underline="false" type="danger">删除</el-link>
+              <el-link
+                @click.native="deleteTag(item, index)"
+                :underline="false"
+                type="danger"
+                >删除</el-link
+              >
             </div>
             <div
               @mouseleave="clearPopover(index)"
@@ -103,10 +166,10 @@
             >
               <img
                 @click="choose(item.address, index)"
-                :style="{'background': item.bgColor}"
+                :style="{ background: item.bgColor }"
                 :src="item.imgUrl"
               />
-              <span>{{item.name}}</span>
+              <span :style="{color: fontColor}">{{ item.name }}</span>
             </div>
           </el-popover>
         </div>
@@ -115,7 +178,11 @@
             <i class="el-icon-plus"></i>
           </div>
         </div>
-        <div v-for="y in (6-(tagsList.length+1)%6)" :key="y + 'y'" class="index__body-conTags__more"></div>
+        <div
+          v-for="y in 6 - ((tagsList.length + 1) % 6)"
+          :key="y + 'y'"
+          class="index__body-conTags__more"
+        ></div>
       </div>
     </div>
     <!-- 设置项 -->
@@ -140,17 +207,30 @@
             id="getImg"
             type="file"
             accept=".jpg, .png, .gif, .bmp, .jpeg"
-            style="display:none"
+            style="display: none"
             @change="clickF"
           />
           <div class="avatar-uploader">
-            <img v-if="imageUrl" @click="toclickF" :src="imageUrl" class="avatar" />
-            <i v-else @click="toclickF" class="el-icon-plus avatar-uploader-icon"></i>
+            <img
+              v-if="imageUrl"
+              @click="toclickF"
+              :src="imageUrl"
+              class="avatar"
+            />
+            <i
+              v-else
+              @click="toclickF"
+              class="el-icon-plus avatar-uploader-icon"
+            ></i>
           </div>
         </div>
         <!-- 纯色显示 -->
         <div class="index__bg-color" v-show="bg == 1">
-          <el-color-picker v-model="bgcolor" @active-change="colorChange" show-alpha></el-color-picker>
+          <el-color-picker
+            v-model="bgcolor"
+            @active-change="colorChange"
+            show-alpha
+          ></el-color-picker>
         </div>
       </div>
       <div class="index__theme">
@@ -158,12 +238,18 @@
         <div class="index__theme-list">
           <div
             @click="chooseEff('0')"
-            :style="eff == '0'? {'background':'#409eff'} : {'background':'#606266'}"
+            :style="
+              eff == '0' ? { background: '#409eff' } : { background: '#606266' }
+            "
             class="index__theme-list__eff"
           >
             <div class="index__theme-list__eff-search"></div>
             <div class="index__theme-list__eff-tags">
-              <div v-for="m in 8" :key="m" class="index__theme-list__eff-tags__one">
+              <div
+                v-for="m in 8"
+                :key="m"
+                class="index__theme-list__eff-tags__one"
+              >
                 <div class="index__theme-list__eff-tags__one-left"></div>
                 <div class="index__theme-list__eff-tags__one-right"></div>
               </div>
@@ -171,14 +257,29 @@
           </div>
           <div
             @click="chooseEff('1')"
-            :style="eff == '1'? {'background':'#409eff'} : {'background':'#606266'}"
+            :style="
+              eff == '1' ? { background: '#409eff' } : { background: '#606266' }
+            "
             class="index__theme-list__con"
           >
             <div class="index__theme-list__con-search"></div>
             <div class="index__theme-list__con-tags">
-              <div v-for="n in 10" :key="n" class="index__theme-list__con-tags__one"></div>
+              <div
+                v-for="n in 10"
+                :key="n"
+                class="index__theme-list__con-tags__one"
+              ></div>
             </div>
           </div>
+        </div>
+      </div>
+      <div class="index__font" v-show="eff == 1">
+        <el-divider>字体颜色</el-divider>
+        <div class="index__bg-color">
+          <el-color-picker
+            v-model="fontColor"
+            @active-change="fontColorChange"
+          ></el-color-picker>
         </div>
       </div>
       <div class="index__tags">
@@ -188,19 +289,28 @@
             <el-radio-button label="0">时间</el-radio-button>
             <el-radio-button label="1">名称</el-radio-button>
           </el-radio-group>
-          <span style="font-size:1.4vw">:</span>
-          <el-radio-group style="margin-left:1%" v-model="order" @change="changeOrder">
+          <span style="font-size: 1.4vw">:</span>
+          <el-radio-group
+            style="margin-left: 1%"
+            v-model="order"
+            @change="changeOrder"
+          >
             <el-radio :label="0">
-              <i style="font-size:1.2vw" class="el-icon-top"></i>
+              <i style="font-size: 1.2vw" class="el-icon-top"></i>
             </el-radio>
             <el-radio :label="1">
-              <i style="font-size:1.2vw" class="el-icon-bottom"></i>
+              <i style="font-size: 1.2vw" class="el-icon-bottom"></i>
             </el-radio>
           </el-radio-group>
         </div>
       </div>
     </el-drawer>
-    <el-dialog :visible.sync="dialogVisible" :close-on-click-modal="false" width="50%" title="添加标签">
+    <el-dialog
+      :visible.sync="dialogVisible"
+      :close-on-click-modal="false"
+      width="50%"
+      title="添加标签"
+    >
       <div class="index__dialog">
         <el-tabs size="mini" v-model="activeName" type="card">
           <el-tab-pane label="搜索添加" name="first">
@@ -208,7 +318,7 @@
               <el-input
                 size="small"
                 clearable
-                style="width:50%"
+                style="width: 50%"
                 v-model="searchTag"
                 placeholder="搜索"
                 prefix-icon="el-icon-search"
@@ -227,10 +337,14 @@
                 :key="item.id"
                 @click="addOneTag(item, index)"
               >
-                <img :src="item.imgUrl" :style="{'background': item.bgColor}" />
+                <img :src="item.imgUrl" :style="{ background: item.bgColor }" />
                 <div class="index__dialog-list__one-info">
-                  <div class="index__dialog-list__one-info__name">{{item.name}}</div>
-                  <div class="index__dialog-list__one-info__msg">{{item.info}}</div>
+                  <div class="index__dialog-list__one-info__name">
+                    {{ item.name }}
+                  </div>
+                  <div class="index__dialog-list__one-info__msg">
+                    {{ item.info }}
+                  </div>
                 </div>
               </div>
             </div>
@@ -238,54 +352,58 @@
           <el-tab-pane label="手动添加" name="second">
             <div class="index__dialog-form">
               <div>
-                <span style="color:#E82B1F">*</span>
+                <span style="color: #e82b1f">*</span>
                 <span>地址：</span>
                 <el-input
-                  style="width:50%"
+                  style="width: 50%"
                   size="small"
                   placeholder="网站地址"
                   clearable
                   v-model="form.address"
                   class="input-with-select"
                 >
-                  <el-select v-model="selectHttp" slot="prepend" placeholder="请选择">
+                  <el-select
+                    v-model="selectHttp"
+                    slot="prepend"
+                    placeholder="请选择"
+                  >
                     <el-option label="http://" value="1"></el-option>
                     <el-option label="https://" value="2"></el-option>
                   </el-select>
                 </el-input>
               </div>
-              <div style="margin-top:1vw">
-                <span style="color:#E82B1F">*</span>
+              <div style="margin-top: 1vw">
+                <span style="color: #e82b1f">*</span>
                 <span>名称：</span>
                 <el-input
                   v-model="form.name"
-                  style="width:50%"
+                  style="width: 50%"
                   size="small"
                   clearable
                   placeholder="网站名称"
                 ></el-input>
               </div>
-              <div style="margin-top:1vw">
-                <span style="vertical-align:top">&ensp;&nbsp;描述：</span>
+              <div style="margin-top: 1vw">
+                <span style="vertical-align: top">&ensp;&nbsp;描述：</span>
                 <el-input
                   v-model="form.info"
                   type="textarea"
                   resize="none"
-                  style="width:50%"
+                  style="width: 50%"
                   size="small"
                   placeholder="网站描述"
                   aria-required="true"
                 ></el-input>
               </div>
-              <div style="margin-top:1vw">
-                <div style="display:inline-block;">
-                  <span style="color:#E82B1F;vertical-align:top">*</span>
-                  <span style="vertical-align:top">logo：</span>
+              <div style="margin-top: 1vw">
+                <div style="display: inline-block">
+                  <span style="color: #e82b1f; vertical-align: top">*</span>
+                  <span style="vertical-align: top">logo：</span>
                   <input
                     id="getLogo"
                     type="file"
                     accept=".jpg, .png, .gif, .bmp, .jpeg"
-                    style="display:none"
+                    style="display: none"
                     @change="clickF1"
                   />
                   <div class="avatar-uploader1">
@@ -293,34 +411,50 @@
                       v-if="form.imgUrl"
                       @click="toclickF1"
                       :src="form.imgUrl"
-                      :style="{'background': form.bgColor}"
+                      :style="{ background: form.bgColor }"
                       class="avatar1"
                     />
-                    <i v-else @click="toclickF1" class="el-icon-plus avatar-uploader-icon1"></i>
+                    <i
+                      v-else
+                      @click="toclickF1"
+                      class="el-icon-plus avatar-uploader-icon1"
+                    ></i>
                   </div>
                 </div>
-                <div style="display:inline-block;vertical-align:top;margin-left:20px">
-                  <span style="vertical-align:top">背景颜色：</span>
-                  <el-color-picker v-model="form.bgColor" @active-change="logoColorChange"></el-color-picker>
+                <div
+                  style="
+                    display: inline-block;
+                    vertical-align: top;
+                    margin-left: 20px;
+                  "
+                >
+                  <span style="vertical-align: top">背景颜色：</span>
+                  <el-color-picker
+                    v-model="form.bgColor"
+                    @active-change="logoColorChange"
+                  ></el-color-picker>
                 </div>
               </div>
-              <span slot="foot">
-                <div style="margin-top:4vh;text-align:right">
-                  <el-button size="small" @click="addMyTag" type="primary">确定</el-button>
-                </div>
-              </span>
+              <div style="float: right; margin-top: 6vh">
+                <el-button @click="addMyTag" type="primary">确定</el-button>
+              </div>
             </div>
           </el-tab-pane>
         </el-tabs>
       </div>
     </el-dialog>
-    <el-dialog title="编辑标签" :close-on-click-modal="false" :visible.sync="dialogVisibleEdit" width="50%">
+    <el-dialog
+      title="编辑标签"
+      :close-on-click-modal="false"
+      :visible.sync="dialogVisibleEdit"
+      width="50%"
+    >
       <div class="index__dialog-form">
         <div>
-          <span style="color:#E82B1F">*</span>
+          <span style="color: #e82b1f">*</span>
           <span>地址：</span>
           <el-input
-            style="width:50%"
+            style="width: 50%"
             size="small"
             placeholder="网站地址"
             clearable
@@ -329,32 +463,38 @@
           >
           </el-input>
         </div>
-        <div style="margin-top:1vw">
-          <span style="color:#E82B1F">*</span>
+        <div style="margin-top: 1vw">
+          <span style="color: #e82b1f">*</span>
           <span>名称：</span>
-          <el-input v-model="editForm.name" style="width:50%" size="small" clearable placeholder="网站名称"></el-input>
+          <el-input
+            v-model="editForm.name"
+            style="width: 50%"
+            size="small"
+            clearable
+            placeholder="网站名称"
+          ></el-input>
         </div>
-        <div style="margin-top:1vw">
-          <span style="vertical-align:top">&ensp;&nbsp;描述：</span>
+        <div style="margin-top: 1vw">
+          <span style="vertical-align: top">&ensp;&nbsp;描述：</span>
           <el-input
             v-model="editForm.info"
             type="textarea"
             resize="none"
-            style="width:50%"
+            style="width: 50%"
             size="small"
             placeholder="网站描述"
             aria-required="true"
           ></el-input>
         </div>
-        <div style="margin-top:1vw">
-          <div style="display:inline-block;">
-            <span style="color:#E82B1F;vertical-align:top">*</span>
-            <span style="vertical-align:top">logo：</span>
+        <div style="margin-top: 1vw">
+          <div style="display: inline-block">
+            <span style="color: #e82b1f; vertical-align: top">*</span>
+            <span style="vertical-align: top">logo：</span>
             <input
               id="getLogo2"
               type="file"
               accept=".jpg, .png, .gif, .bmp, .jpeg"
-              style="display:none"
+              style="display: none"
               @change="clickF2"
             />
             <div class="avatar-uploader1">
@@ -362,47 +502,85 @@
                 v-if="editForm.imgUrl"
                 @click="toclickF2"
                 :src="editForm.imgUrl"
-                :style="{'background': editForm.bgColor}"
+                :style="{ background: editForm.bgColor }"
                 class="avatar1"
               />
-              <i v-else @click="toclickF2" class="el-icon-plus avatar-uploader-icon1"></i>
+              <i
+                v-else
+                @click="toclickF2"
+                class="el-icon-plus avatar-uploader-icon1"
+              ></i>
             </div>
           </div>
-          <div style="display:inline-block;vertical-align:top;margin-left:20px">
-            <span style="vertical-align:top">背景颜色：</span>
-            <el-color-picker v-model="editForm.bgColor" @active-change="logoColorChange2"></el-color-picker>
+          <div
+            style="
+              display: inline-block;
+              vertical-align: top;
+              margin-left: 20px;
+            "
+          >
+            <span style="vertical-align: top">背景颜色：</span>
+            <el-color-picker
+              v-model="editForm.bgColor"
+              @active-change="logoColorChange2"
+            ></el-color-picker>
           </div>
         </div>
       </div>
       <span slot="footer" class="dialog-footer">
-        <el-button size="small" @click="dialogVisibleEdit = false">取 消</el-button>
-        <el-button size="small" @click="saveEdit" type="primary">确 定</el-button>
+        <el-button size="small" @click="dialogVisibleEdit = false"
+          >取 消</el-button
+        >
+        <el-button size="small" @click="saveEdit" type="primary"
+          >确 定</el-button
+        >
       </span>
     </el-dialog>
-    <el-dialog title="教程"
-               :visible.sync="dialogVisibleUse"
-               width="60%"
-               :close-on-click-modal="false"
-               @close="setFlag"
-               >
-        <div style="height:70vh;overflow:hidden;overflow-y: scroll;">
-       <div>&emsp;&emsp;&emsp;感谢您使用本标签页，首先请您耐心阅读相关使用教程。</div>
-       <div style="margin:10px 0 4px 0"><span style="color:#409EFF"><i class="el-icon-help"></i>搜索引擎切换</span>--支持多款主流搜索，简单便捷。</div>
-       <img src="../img/1.png" style="width:90%">
-       <div style="margin:10px 0 4px 0"><span style="color:#409EFF"><i class="el-icon-help"></i>自定义设置(鼠标移至最右侧显示)</span>--支持自定义背景、主题、排序等功能。</div>
-       <img src="../img/2.png" style="width:90%">
-       <img src="../img/6.jpg" style="width:90%">
-       <div style="margin:10px 0 4px 0"><span style="color:#409EFF"><i class="el-icon-help"></i>添加标签</span>--支持搜索添加以及手动添加。</div>
-       <img src="../img/3.png" style="width:90%">
-       <img src="../img/4.jpg" style="width:90%">
-       <div style="margin:10px 0 4px 0"><span style="color:#409EFF"><i class="el-icon-help"></i>编辑标签(点击鼠标右键)</span>--支持编辑、删除等功能。</div>
-       <img src="../img/5.png" style="width:90%">
-       <div style="margin:10px 0 4px 0;color:#409EFF"><i class="el-icon-s-opportunity"></i>更多功能敬请期待!</div>
-        <img style="position: absolute; top: 0; left: 0; border: 0;"
+    <el-dialog
+      title="教程"
+      :visible.sync="dialogVisibleUse"
+      width="60%"
+      :close-on-click-modal="false"
+      @close="setFlag"
+    >
+      <div style="height: 70vh; overflow: hidden; overflow-y: scroll">
+        <div>
+          &emsp;&emsp;&emsp;感谢您使用本标签页，首先请您耐心阅读相关使用教程。
+        </div>
+        <div style="margin: 10px 0 4px 0">
+          <span style="color: #409eff"
+            ><i class="el-icon-help"></i>搜索引擎切换</span
+          >--支持多款主流搜索，简单便捷。
+        </div>
+        <img src="../img/1.png" style="width: 90%" />
+        <div style="margin: 10px 0 4px 0">
+          <span style="color: #409eff"
+            ><i class="el-icon-help"></i>自定义设置(鼠标移至最右侧显示)</span
+          >--支持自定义背景、主题、排序等功能。
+        </div>
+        <img src="../img/2.png" style="width: 90%" />
+        <img src="../img/6.jpg" style="width: 90%" />
+        <div style="margin: 10px 0 4px 0">
+          <span style="color: #409eff"
+            ><i class="el-icon-help"></i>添加标签</span
+          >--支持搜索添加以及手动添加。
+        </div>
+        <img src="../img/3.png" style="width: 90%" />
+        <img src="../img/4.jpg" style="width: 90%" />
+        <div style="margin: 10px 0 4px 0">
+          <span style="color: #409eff"
+            ><i class="el-icon-help"></i>编辑标签(点击鼠标右键)</span
+          >--支持编辑、删除等功能。
+        </div>
+        <img src="../img/5.png" style="width: 90%" />
+        <div style="margin: 10px 0 4px 0; color: #409eff">
+          <i class="el-icon-s-opportunity"></i>更多功能敬请期待!
+        </div>
+        <!-- <img style="position: absolute; top: 0; left: 0; border: 0;"
         src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png"
         alt="Fork me on GitHub"
-        @click="toGitHub">
-    </div>
+        @click="toGitHub"> -->
+      </div>
     </el-dialog>
   </div>
 </template>
@@ -465,8 +643,9 @@ export default {
         localStorage.getItem('tags') == null
           ? []
           : JSON.parse(localStorage.getItem('tags')),
-      draging: null, // 被拖拽的对象
-      target: null // 目标对象
+      fontColor: localStorage.getItem('fontColor') == null
+        ? '#fff'
+        : localStorage.getItem('fontColor')
     }
   },
   methods: {
@@ -474,7 +653,6 @@ export default {
       window.open('https://github.com/qiaolufei/TagsPage/issues')
     },
     setFlag () {
-      console.log('...')
       localStorage.setItem('readFirst', 0)
     },
     changeSelect (value) {
@@ -482,31 +660,32 @@ export default {
       localStorage.setItem('select', value)
     },
     toSearch () {
+      // 搜索
       let url = ''
       switch (this.select) {
         case '1':
-          url = 'https://www.baidu.com/s?wd=' + this.searchInfo
+          url = 'https://www.baidu.com/s?wd='
           break
         case '2':
-          url = 'https://www.google.com/search?ie=utf-8&q=' + this.searchInfo
+          url = 'https://www.google.com/search?ie=utf-8&q='
           break
         case '3':
-          url = 'https://www.sogou.com/sogou?ie=utf8&query=' + this.searchInfo
+          url = 'https://www.sogou.com/sogou?ie=utf8&query='
           break
         case '4':
-          url = 'https://search.yahoo.com/search?ei=UTF-8&p=' + this.searchInfo
+          url = 'https://search.yahoo.com/search?ei=UTF-8&p='
           break
         case '5':
-          url = 'https://www.sina.com.cn/mid/search.shtml?q=' + this.searchInfo
+          url = 'https://www.sina.com.cn/mid/search.shtml?q='
           break
         case '6':
-          url = 'http://www.yodao.com/search?ue=utf8&keyfrom=web.index&q=' + this.searchInfo
+          url = 'http://www.yodao.com/search?ue=utf8&keyfrom=web.index&q='
           break
         case '7':
-          url = 'https://www.zhihu.com/search?type=content&q=' + this.searchInfo
+          url = 'https://www.zhihu.com/search?type=content&q='
           break
       }
-      window.location.href = url
+      window.location.href = url + this.searchInfo
     },
     // 存储背景选择
     changeBG (e) {
@@ -517,10 +696,17 @@ export default {
       this.bgcolor = e
       localStorage.setItem('bgcolor', e)
     },
-    logoColorChange (e) { // 添加标签
+    // 动态改变背景颜色
+    fontColorChange (e) {
+      this.fontColor = e
+      localStorage.setItem('fontColor', e)
+    },
+    logoColorChange (e) {
+      // 添加标签
       this.form.bgColor = e
     },
-    logoColorChange2 (e) { // 编辑标签
+    logoColorChange2 (e) {
+      // 编辑标签
       this.editForm.bgColor = e
     },
     // 改变背景图片
@@ -592,6 +778,7 @@ export default {
       window.location.href = url
     },
     chooseNew (url, index) {
+      // 新窗口打开
       window.open(url)
     },
     // 标签排序
@@ -673,7 +860,7 @@ export default {
           this.form.updateTime = timeJS.getNowTime('timestamp')
           let m = this.selectHttp === '1' ? 'http://' : 'https://'
           this.form.address = m + this.form.address
-          let {...obj} = this.form
+          let { ...obj } = this.form
           this.tagsList.push(obj)
           this.setVisible()
           localStorage.setItem('tags', JSON.stringify(this.tagsList))
@@ -695,6 +882,13 @@ export default {
         localStorage.setItem('tags', JSON.stringify(this.tagsList))
         this.dialogVisible = false
         this.$message.success('添加成功！')
+        this.searchTag = ''
+        getTags().then((res) => {
+          if (res.code === 200) {
+            this.allTags = res.data
+            this.loading = false
+          }
+        })
       } else {
         this.$message.warning(item.name + '标签已存在！')
       }
@@ -722,7 +916,8 @@ export default {
         t.name = this.this.editForm
       })
     },
-    saveEdit () { // 编辑标签
+    saveEdit () {
+      // 编辑标签
       if (isNullAndEmpty(this.editForm.address)) {
         this.$notify.error('请填写网站地址')
       } else if (isNullAndEmpty(this.editForm.name)) {
@@ -743,7 +938,6 @@ export default {
       this.dialogVisibleUse = false
     }
     this.order = Number(this.order)
-    // this.changeOrder()
     this.setVisible()
     // 获取默认的标签页
     if (this.tagsList.length === 0) {
@@ -780,6 +974,10 @@ body .index {
     margin-left: 5%;
     &-search {
       text-align: center;
+      .el-input__inner {
+        height: 3.4vw;
+        font-size: 1.2vw;
+      }
     }
     &-effTags::-webkit-scrollbar {
       display: none;
@@ -792,7 +990,7 @@ body .index {
       display: flex;
       flex-wrap: wrap;
       justify-content: space-between;
-      align-content:flex-start;
+      align-content: flex-start;
       &__one {
         width: 23%;
         height: 14vh;
@@ -854,7 +1052,7 @@ body .index {
       }
       &__add:hover {
         background: rgba(255, 255, 255, 0.8);
-        color:#409eff
+        color: #409eff;
       }
       &__more {
         width: 23%;
@@ -873,7 +1071,7 @@ body .index {
       display: flex;
       flex-wrap: wrap;
       justify-content: space-between;
-      align-content:flex-start;
+      align-content: flex-start;
       &__one {
         cursor: pointer;
         width: 12vw;
@@ -898,7 +1096,6 @@ body .index {
         span {
           display: block;
           font-size: 1.2vw;
-          color: #f2f6fc;
           margin-top: 1vw;
           font-weight: bold;
         }
@@ -925,7 +1122,7 @@ body .index {
       }
       &__add:hover {
         background: rgba(255, 255, 255, 0.8);
-        color:#409eff
+        color: #409eff;
       }
       &__more {
         width: 12vw;
@@ -977,7 +1174,7 @@ body .index {
           display: flex;
           flex-wrap: wrap;
           justify-content: space-between;
-           align-content:flex-start;
+          align-content: flex-start;
           height: 80%;
           &__one {
             width: 1.5vw;
@@ -1016,7 +1213,7 @@ body .index {
           display: flex;
           flex-wrap: wrap;
           justify-content: space-between;
-          align-content:flex-start;
+          align-content: flex-start;
           height: 80%;
           &__one {
             width: 1vw;
@@ -1047,7 +1244,7 @@ body .index {
       display: flex;
       flex-wrap: wrap;
       justify-content: space-between;
-      align-content:flex-start;
+      align-content: flex-start;
       overflow-y: scroll;
       padding: 8px;
       &__one:hover {
@@ -1161,10 +1358,6 @@ body .index {
 .el-select .el-input {
   width: 8vw;
 }
-.el-input__inner {
-  height: 3.4vw;
-  font-size: 1.2vw;
-}
 .input-with-select .el-input-group__prepend {
   background-color: #fff;
 }
@@ -1172,7 +1365,7 @@ body .index {
 .el-input-group__prepend {
   background: #f2f6fc;
   color: #409eff;
-  font-weight: bold;
+  // font-weight: bold;
 }
 .el-drawer__open .el-drawer.rtl {
   // 去掉弹出层点击时产生的黑色border
@@ -1199,5 +1392,8 @@ body .index {
 }
 .el-form-item__label {
   line-height: 10px;
+}
+.el-select-dropdown__list {
+  font-family: "微软雅黑";
 }
 </style>
