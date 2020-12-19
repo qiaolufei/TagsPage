@@ -26,13 +26,12 @@
           style="width: 60%"
         >
           <el-select v-model="select" @change="changeSelect" slot="prepend">
-            <el-option label="百度" value="1"></el-option>
-            <el-option label="Google" value="2"></el-option>
-            <el-option label="搜狗" value="3"></el-option>
-            <el-option label="Yahoo!" value="4"></el-option>
-            <el-option label="新浪" value="5"></el-option>
-            <el-option label="网易" value="6"></el-option>
-            <el-option label="知乎" value="7"></el-option>
+            <el-option
+              v-for="item in webs"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value">
+            </el-option>
           </el-select>
         </el-input>
       </div>
@@ -40,6 +39,7 @@
       <div v-if="eff == '0'" class="index__body-effTags">
         <div
           v-for="(item, index) of tagsList"
+          v-dragging="{ item: item, list: tagsList, group: 'tag' }"
           :key="item.id"
           @click="choose(item.address, index)"
           class="index__body-effTags__one"
@@ -120,6 +120,7 @@
       <div v-else class="index__body-conTags" ref="parentNode">
         <div
           v-for="(item, index) of tagsList"
+          v-dragging="{ item: item, list: tagsList, group: 'tag' }"
           :key="item.id"
           class="index__body-conTags__one"
         >
@@ -556,7 +557,7 @@
         <div style="margin: 10px 0 4px 0">
           <span style="color: #409eff"
             ><i class="el-icon-help"></i>自定义设置(鼠标移至最右侧显示)</span
-          >--支持自定义背景、主题、排序等功能。
+          >--支持自定义背景、主题、排序(可拖拽排序)等功能。
         </div>
         <img src="../img/2.png" style="width: 90%" />
         <img src="../img/6.jpg" style="width: 90%" />
@@ -587,66 +588,72 @@
 <script>
 import { sortLikeWin, timeJS, isNullAndEmpty, objectJS } from '../utils/commen'
 import { getTags, getUsualTags, searchTags } from '../utils/api'
+import {search} from './search'
+import {webs} from './webs'
 export default {
-  data () {
-    return {
-      dialogVisibleUse: true,
-      select:
+  data: () => ({
+    webs: webs,
+    dialogVisibleUse: true,
+    select:
         localStorage.getItem('select') == null
           ? '1'
           : localStorage.getItem('select'), // 搜索源
-      searchInfo: '', // 搜索内容
-      drawer: false, // 设置项显示隐藏
-      eff:
+    searchInfo: '', // 搜索内容
+    drawer: false, // 设置项显示隐藏
+    eff:
         localStorage.getItem('eff') == null ? '0' : localStorage.getItem('eff'), // 主题选择
-      orderType:
+    orderType:
         localStorage.getItem('orderType') == null
           ? 0
           : localStorage.getItem('orderType'), // 排序类型
-      order:
+    order:
         localStorage.getItem('order') == null
           ? 0
           : localStorage.getItem('order'), // 排序顺序
-      dialogVisible: false, // 添加标签弹窗
-      dialogVisibleEdit: false, // 编辑标签弹窗
-      editForm: {}, // 编辑表单
-      editIndex: 0, // 编辑标签的数组下标
-      page: 0,
-      allTags: [], // 所有标签
-      activeName: 'first', // 添加标签方式
-      loading: true,
-      searchTag: '', // 搜索标签
-      selectHttp: '1',
-      form: {
-        // 手动添加标签表单
-        address: '',
-        name: '',
-        info: '',
-        imgUrl: '',
-        bgColor: '#409eff',
-        updateTime: ''
-      },
-      visible: [],
-      bg: localStorage.getItem('bg') == null ? 1 : localStorage.getItem('bg'), // 背景选择
-      // 背景图片
-      imageUrl:
+    dialogVisible: false, // 添加标签弹窗
+    dialogVisibleEdit: false, // 编辑标签弹窗
+    editForm: {}, // 编辑表单
+    editIndex: 0, // 编辑标签的数组下标
+    page: 0,
+    allTags: [], // 所有标签
+    activeName: 'first', // 添加标签方式
+    loading: true,
+    searchTag: '', // 搜索标签
+    selectHttp: '1',
+    form: {
+      // 手动添加标签表单
+      address: '',
+      name: '',
+      info: '',
+      imgUrl: '',
+      bgColor: '#409eff',
+      updateTime: ''
+    },
+    visible: [],
+    bg: localStorage.getItem('bg') == null ? 1 : localStorage.getItem('bg'), // 背景选择
+    // 背景图片
+    imageUrl:
         localStorage.getItem('imgData') == null
           ? ''
           : localStorage.getItem('imgData'),
-      // 背景颜色
-      bgcolor:
+    // 背景颜色
+    bgcolor:
         localStorage.getItem('bgcolor') == null
           ? 'rgba(64,158,255,0.6)'
           : localStorage.getItem('bgcolor'),
-      // 标签
-      tagsList:
+    // 标签
+    tagsList:
         localStorage.getItem('tags') == null
           ? []
           : JSON.parse(localStorage.getItem('tags')),
-      fontColor: localStorage.getItem('fontColor') == null
-        ? '#fff'
-        : localStorage.getItem('fontColor')
-    }
+    fontColor: localStorage.getItem('fontColor') == null
+      ? '#fff'
+      : localStorage.getItem('fontColor')
+  }),
+  mounted () {
+    this.$dragging.$on('dragged', ({ value }) => {
+      localStorage.setItem('tags', JSON.stringify(value.list))
+    })
   },
   methods: {
     toGitHub () {
@@ -660,32 +667,7 @@ export default {
       localStorage.setItem('select', value)
     },
     toSearch () {
-      // 搜索
-      let url = ''
-      switch (this.select) {
-        case '1':
-          url = 'https://www.baidu.com/s?wd='
-          break
-        case '2':
-          url = 'https://www.google.com/search?ie=utf-8&q='
-          break
-        case '3':
-          url = 'https://www.sogou.com/sogou?ie=utf8&query='
-          break
-        case '4':
-          url = 'https://search.yahoo.com/search?ei=UTF-8&p='
-          break
-        case '5':
-          url = 'https://www.sina.com.cn/mid/search.shtml?q='
-          break
-        case '6':
-          url = 'http://www.yodao.com/search?ue=utf8&keyfrom=web.index&q='
-          break
-        case '7':
-          url = 'https://www.zhihu.com/search?type=content&q='
-          break
-      }
-      window.location.href = url + this.searchInfo
+      search(this.select, this.searchInfo)
     },
     // 存储背景选择
     changeBG (e) {
@@ -1277,7 +1259,7 @@ body .index {
             color: #303133;
           }
           &__msg {
-            margin-top: 0.1vw;
+            margin-top: 0.4vw;
             font-size: 0.6vw;
             color: #606266;
             overflow: hidden;

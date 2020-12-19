@@ -1,8 +1,8 @@
 {
-  "name": "my_vue_demo",
+  "name": "tag_page",
   "version": "1.0.0",
-  "description": "A Vue.js project",
-  "author": "luffy <1243312228@qq.com>",
+  "description": "网站用于收藏自己常用的网页地址，制作标签页便于查询",
+  "author": "luffy <luffy0101@163.com>",
   "private": true,
   "scripts": {
     "dev": "webpack-dev-server --inline --progress --config build/webpack.dev.conf.js",
@@ -14,6 +14,7 @@
     "build": "node build/build.js"
   },
   "dependencies": {
+    "awe-dnd": "^0.3.4",
     "axios": "^0.19.0",
     "echarts": "^4.8.0",
     "element-ui": "^2.12.0",

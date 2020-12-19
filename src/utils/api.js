@@ -1,4 +1,4 @@
-import {post, get} from './http'
+import {get} from './http'
 import qs from 'qs'
 
 // const api = 'http://localhost:8080'
@@ -19,11 +19,5 @@ export const getUsualTags = () => {
 // 搜索标签
 export const searchTags = params => {
   return get(api + '/searchTags?' + qs.stringify(params))
-    .then(res => res)
-}
-
-// post示例
-export const login = params => {
-  return post(api + '/user/login', qs.stringify(params))
     .then(res => res)
 }
