@@ -790,6 +790,12 @@ export default {
     addTag () {
       this.dialogVisible = true
       this.drawer = false
+      getTags().then((res) => {
+        if (res.code === 200) {
+          this.allTags = res.data
+          this.loading = false
+        }
+      })
     },
     // 搜索标签
     searchTagsByName () {
@@ -930,12 +936,6 @@ export default {
         }
       })
     }
-    getTags().then((res) => {
-      if (res.code === 200) {
-        this.allTags = res.data
-        this.loading = false
-      }
-    })
   }
 }
 </script>
@@ -978,32 +978,31 @@ body .index {
         height: 14vh;
         margin-top: 2vw;
         box-sizing: border-box;
-        display: flex;
-        flex-direction: row;
         img {
           cursor: pointer;
           width: 14vh;
           height: 14vh;
+          display: block;
           border-radius: 8px 0 0 8px;
+          float: left;
         }
         &-info {
-          width: 11.6vw;
+          width:100%;
           cursor: pointer;
           background: #fff;
           border-radius: 0 8px 8px 0;
           box-sizing: border-box;
           padding: 3% 3% 3% 3%;
-          height: 14vh;
           overflow: hidden;
           text-overflow: ellipsis;
           &__name {
-            width: 100%;
             font-size: 1.2vw;
             color: #303133;
+            box-sizing: border-box;
           }
           &__msg {
-            width: 100%;
             margin-top: 0.5vw;
+            box-sizing: border-box;
             font-size: 1vw;
             line-height: 1.2vw;
             color: #909399;
