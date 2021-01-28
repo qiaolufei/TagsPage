@@ -189,7 +189,8 @@
     <!-- 设置项 -->
     <el-drawer
       size="25%"
-      :with-header="false"
+      :withHeader="false"
+      :show-close="false"
       :modal="false"
       :visible.sync="drawer"
       direction="rtl"
@@ -1376,5 +1377,8 @@ body .index {
 }
 .el-select-dropdown__list {
   font-family: "微软雅黑";
+}
+.el-drawer__header{
+  display: none;
 }
 </style>
