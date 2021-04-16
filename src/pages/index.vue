@@ -970,6 +970,7 @@ body .index {
       padding: 1%;
       margin-top: 2vw;
       overflow-y: scroll;
+      -ms-overflow-style:none; //兼容Edge
       display: flex;
       flex-wrap: wrap;
       justify-content: space-between;
@@ -1010,6 +1011,7 @@ body .index {
             overflow: hidden;
             text-overflow: ellipsis;
             display: -webkit-box;
+            display: -ms-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
           }
@@ -1048,6 +1050,7 @@ body .index {
       width: 90%;
       height: 90%;
       overflow-y: scroll;
+      -ms-overflow-style:none; //兼容Edge
       margin-left: 5%;
       margin-top: 2vw;
       display: flex;
